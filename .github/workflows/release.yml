@@ -27,8 +27,13 @@ jobs:
             echo "::set-output name=should_skip::false"
           fi
  
-      - name: Skip or continue
-        if: steps.check_commit_message.outputs.should_skip != 'true'
+      - name: Skip CI
+        if: steps.check_commit_message.outputs.should_skip == 'true'
+        run: |
+          echo "skip ci"
+          exit 0
+          
+      - name: Continue CI
         run: |
           echo "continue ci"
         
