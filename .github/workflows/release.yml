@@ -26,13 +26,13 @@ jobs:
             echo "ci tags not found: [skip ci]"
             echo "::set-output name=should_skip::false"
           fi
- 
+
       - name: Skip CI
         if: steps.check_commit_message.outputs.should_skip == 'true'
         run: |
           echo "skip ci"
           exit 0
-          
+
       - name: Continue CI
         run: |
           echo "continue ci"
@@ -86,12 +86,20 @@ jobs:
             }
             return releaseByTag.status
 
+      - name: Skip release
+        if: steps.check_release.outputs.result != '404'
+        run: |
+          echo "skip release"
+          exit 0
+
+      - name: Gradle test
+        run: ./gradlew test
+        continue-on-error: false
+
       - name: Gradle jar
-        if: steps.check_release.outputs.result == '404'
         run: ./gradlew jar
 
       - name: Create a release
-        if: steps.check_release.outputs.result == '404'
         uses: ncipollo/release-action@v1
         with:
           generateReleaseNotes: true
