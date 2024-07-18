@@ -18,3 +18,18 @@ dependencies {
 tasks.test {
     useJUnitPlatform()
 }
+
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(8))
+        vendor.set(JvmVendorSpec.AZUL)
+    }
+}
+
+tasks.withType<JavaCompile> {
+    options.encoding = "UTF-8"
+}
+
+tasks.jar {
+    dependsOn(tasks.test)
+}
