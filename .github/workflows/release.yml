@@ -29,6 +29,8 @@ jobs:
  
       - name: Skip or continue
         if: steps.check_commit_message.outputs.should_skip != 'true'
+        run: |
+          echo "continue ci"
         
       - uses: actions/checkout@v3
 
