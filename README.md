@@ -1,7 +1,5 @@
 # Sugar
 
-------------------------------------------------------------------------------
-
 <img src="./.idea/icon.png" alt="Sugar LOGO" width="" height="auto"></img>
 
 [![Gradle](https://img.shields.io/badge/Gradle-8%2E9-g?logo=gradle&style=flat-square)](https://gradle.org/)
@@ -11,19 +9,13 @@
 ![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/ideal-state/sugar/release.yml?style=flat-square)
 ![GitHub Release](https://img.shields.io/github/v/release/ideal-state/sugar?style=flat-square)
 
-------------------------------------------------------------------------------
-
 <a href="https://github.com/ideal-state/sugar/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=ideal-state/sugar" alt="contributor" width="36px" height="auto" />
 </a>
 
-------------------------------------------------------------------------------
-
 ### 简介
 
 > 待补充
-
-------------------------------------------------------------------------------
 
 ### 如何使用
 
@@ -51,8 +43,6 @@ dependencies {
 }
 ```
 
-------------------------------------------------------------------------------
-
 ### 如何构建
 
 ```shell
@@ -63,8 +53,6 @@ cd ./sugar
 # 3. 构建项目
 ./gradlew jar
 ```
-
-------------------------------------------------------------------------------
 
 ### 怎样成为贡献者
 
