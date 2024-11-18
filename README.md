@@ -2,7 +2,7 @@
 
 <img src="./.idea/icon.png" alt="Sugar LOGO" width="128px" height="auto"></img>
 
-![Gradle](https://img.shields.io/badge/Gradle-8%2E9-g?logo=gradle&style=flat-square)
+![Gradle](https://img.shields.io/badge/Gradle-8%2E11-g?logo=gradle&style=flat-square)
 ![JDK](https://img.shields.io/badge/JDK-8-blue?logo=openjdk&style=flat-square)
 
 ![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/ideal-state/sugar?label=Code%20Size&style=flat-square&logo=github)
