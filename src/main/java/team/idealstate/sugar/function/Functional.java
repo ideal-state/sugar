@@ -19,7 +19,6 @@ package team.idealstate.sugar.function;
 import team.idealstate.sugar.function.closure.Action;
 import team.idealstate.sugar.function.closure.Condition;
 import team.idealstate.sugar.function.closure.Function;
-import team.idealstate.sugar.function.closure.Provider;
 import team.idealstate.sugar.function.exception.FunctionExecutionException;
 import team.idealstate.sugar.validation.Validation;
 import team.idealstate.sugar.validation.annotation.NotNull;
@@ -37,17 +36,6 @@ public interface Functional<T> {
     @NotNull
     static <T> Functional<T> conditional(T it, Condition<T> condition) {
         return new ConditionFunctional<>(it, condition);
-    }
-
-    @NotNull
-    static <V> Lazy<V> lazy(V value) {
-        return new CachedLazy<>(value);
-    }
-
-    @NotNull
-    static <V> Lazy<V> lazy(@NotNull Provider<V> provider) {
-        Validation.notNull(provider, "provider must not be null.");
-        return new CachedLazy<>(provider);
     }
 
     T it();

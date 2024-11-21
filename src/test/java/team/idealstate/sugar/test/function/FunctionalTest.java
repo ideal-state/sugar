@@ -18,11 +18,11 @@ package team.idealstate.sugar.test.function;
 
 import org.junit.jupiter.api.Test;
 import team.idealstate.sugar.function.Functional;
-import team.idealstate.sugar.function.Lazy;
 import team.idealstate.sugar.test.function.entity.CloseableRobot;
 import team.idealstate.sugar.test.function.entity.Robot;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static team.idealstate.sugar.function.Functional.functional;
 
 public class FunctionalTest {
@@ -111,13 +111,5 @@ public class FunctionalTest {
                 .when(FunctionalTest::isAdult)
                 .run(it -> it.setName(CHANGED_NAME));
         assertEquals(new Robot(CHANGED_NAME, ADULT_AGE), robot);
-    }
-
-    @Test
-    public void lazy() {
-        Lazy<Robot> lazy = Functional.lazy(() -> new Robot(NAME, JUVENILE_AGE));
-        assertFalse(lazy.isInitialized());
-        assertEquals(lazy.get(), lazy.get());
-        assertTrue(lazy.isInitialized());
     }
 }
