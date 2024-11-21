@@ -19,17 +19,33 @@ package team.idealstate.sugar.reflection;
 import team.idealstate.sugar.validation.Validation;
 import team.idealstate.sugar.validation.annotation.NotNull;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Proxy;
+import java.util.Map;
 
 public abstract class Reflection {
 
     @SuppressWarnings("unchecked")
     @NotNull
-    public static <T> T newInstance(ClassLoader classLoader, @NotNull Class<T> reflectionInterface, Object target) {
+    public static <T> T reflect(ClassLoader classLoader, @NotNull Class<T> reflectionInterface, Object target) {
         Validation.notNull(reflectionInterface, "reflectionInterface must not be null");
         Validation.vote(reflectionInterface.isInterface(), "reflectionInterface must be an interface");
         classLoader = classLoader != null ? classLoader : reflectionInterface.getClassLoader();
-        ReflectionHandler reflectionHandler = new ReflectionHandler(classLoader, reflectionInterface, target);
-        return (T) Proxy.newProxyInstance(classLoader, new Class[]{reflectionInterface}, reflectionHandler);
+        InternalReflectionHandler internalReflectionHandler = new InternalReflectionHandler(classLoader, reflectionInterface, target);
+        return (T) Proxy.newProxyInstance(classLoader, new Class[]{reflectionInterface}, internalReflectionHandler);
+    }
+
+    @SuppressWarnings("unchecked")
+    @NotNull
+    public static <A extends Annotation> A annotation(@NotNull Class<A> annotationType, Map<String, Object> mappings) {
+        Validation.notNull(annotationType, "annotationType must not be null");
+        Validation.vote(Annotation.class.isAssignableFrom(annotationType), "annotationType must be an Annotation.");
+        Validation.notNull(mappings, "mappings must not be null");
+
+        return (A) Proxy.newProxyInstance(
+                annotationType.getClassLoader(),
+                new Class[]{annotationType},
+                new InternalAnnotationHandler(mappings)
+        );
     }
 }
