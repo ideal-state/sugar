@@ -18,10 +18,10 @@ package team.idealstate.sugar.test.localization;
 
 import org.junit.jupiter.api.Test;
 import team.idealstate.sugar.localization.Locale;
-import team.idealstate.sugar.localization.Localization;
 import team.idealstate.sugar.test.localization.entity.HelloWorld;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static team.idealstate.sugar.localization.Localization.localize;
 
 public class LocalizationTest {
 
@@ -30,7 +30,7 @@ public class LocalizationTest {
 
     @Test
     public void fallback() {
-        HelloWorld helloWorld = Localization.load(
+        HelloWorld helloWorld = localize(
                 HelloWorld.class, new Locale.StandardLocale("", ""), Locale.zh_CN);
         assertEquals(ZH_CN_MESSAGE, helloWorld.message());
         assertEquals(ZH_CN_MESSAGE, helloWorld.aliasMessage());
@@ -38,14 +38,14 @@ public class LocalizationTest {
 
     @Test
     public void zh_CN() {
-        HelloWorld helloWorld = Localization.load(HelloWorld.class, Locale.zh_CN, null);
+        HelloWorld helloWorld = localize(HelloWorld.class, Locale.zh_CN, null);
         assertEquals(ZH_CN_MESSAGE, helloWorld.message());
         assertEquals(ZH_CN_MESSAGE, helloWorld.aliasMessage());
     }
 
     @Test
     public void en_US() {
-        HelloWorld helloWorld = Localization.load(HelloWorld.class, Locale.en_US, null);
+        HelloWorld helloWorld = localize(HelloWorld.class, Locale.en_US, null);
         assertEquals(EN_US_MESSAGE, helloWorld.message());
         assertEquals(EN_US_MESSAGE, helloWorld.aliasMessage());
     }
