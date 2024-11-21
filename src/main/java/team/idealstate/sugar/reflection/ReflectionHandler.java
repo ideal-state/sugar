@@ -33,7 +33,7 @@ import java.lang.reflect.*;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-class InternalReflectionHandler implements ReflectionInvocationHandler {
+class ReflectionHandler implements InvocationHandler {
 
     private static final int ALLOWED_MODES = MethodHandles.Lookup.PRIVATE
             | MethodHandles.Lookup.PROTECTED
@@ -58,7 +58,7 @@ class InternalReflectionHandler implements ReflectionInvocationHandler {
     private final Map<String, InvocationHandler> handlers = new ConcurrentHashMap<>(16, 0.6F);
     private volatile MethodHandles.Lookup specialLookup = null;
 
-    InternalReflectionHandler(@NotNull ClassLoader classLoader, @NotNull Class<?> reflectionInterface, Object target) {
+    ReflectionHandler(@NotNull ClassLoader classLoader, @NotNull Class<?> reflectionInterface, Object target) {
         Validation.notNull(classLoader, "classLoader must not be null");
         Validation.notNull(reflectionInterface, "reflectionInterface must not be null");
         Validation.vote(reflectionInterface.isInterface(), "reflectionInterface must be an interface");
@@ -89,10 +89,6 @@ class InternalReflectionHandler implements ReflectionInvocationHandler {
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-        Object ret = ReflectionInvocationHandler.super.invoke(proxy, method, args);
-        if (ret != null) {
-            return ret;
-        }
         String methodDesc = method.toString();
         InvocationHandler handler = handlers.computeIfAbsent(methodDesc, key -> {
             Annotation[] annotations = method.getDeclaredAnnotations();
@@ -177,7 +173,7 @@ class InternalReflectionHandler implements ReflectionInvocationHandler {
                 synchronized (this) {
                     if (constructor == null) {
                         try {
-                            Class<?> declaringClass = InternalReflectionHandler.getDeclaringClass(
+                            Class<?> declaringClass = ReflectionHandler.getDeclaringClass(
                                     reflectConstructor.value(),
                                     reflectConstructor.declaringClass(),
                                     method.getDeclaringClass().getClassLoader(), this.declaringClass
@@ -188,7 +184,7 @@ class InternalReflectionHandler implements ReflectionInvocationHandler {
                             }
 
                             MethodType methodType = MethodType.methodType(void.class, method.getParameterTypes());
-                            this.constructor = InternalReflectionHandler.lookup(reflectConstructor.accessible())
+                            this.constructor = ReflectionHandler.lookup(reflectConstructor.accessible())
                                     .findConstructor(declaringClass, methodType);
                         } catch (ReflectiveOperationException e) {
                             throw new ReflectionException(e);
@@ -201,17 +197,6 @@ class InternalReflectionHandler implements ReflectionInvocationHandler {
     }
 
     private static class ReflectFieldHandler implements InvocationHandler {
-
-        private static final Field MODIFIERS_FIELD;
-
-        static {
-            try {
-                MODIFIERS_FIELD = Field.class.getDeclaredField("modifiers");
-                MODIFIERS_FIELD.setAccessible(true);
-            } catch (NoSuchFieldException e) {
-                throw new ReflectionException(e);
-            }
-        }
 
         private final DeclaringClass declaringClass;
         private final ReflectField reflectField;
@@ -261,12 +246,8 @@ class InternalReflectionHandler implements ReflectionInvocationHandler {
                             boolean accessible = reflectField.accessible();
                             if (accessible) {
                                 field.setAccessible(true);
-                                int modifiers = field.getModifiers();
-                                if (reflectField.statical() && Modifier.isFinal(modifiers)) {
-                                    MODIFIERS_FIELD.setInt(field, modifiers & ~Modifier.FINAL);
-                                }
                             }
-                            MethodHandles.Lookup lookup = InternalReflectionHandler.lookup(accessible);
+                            MethodHandles.Lookup lookup = ReflectionHandler.lookup(accessible);
                             if (reflectField.statical()) {
                                 if (isGetter) {
                                     this.getter = lookup.unreflectGetter(field);
@@ -333,7 +314,7 @@ class InternalReflectionHandler implements ReflectionInvocationHandler {
                             if (accessible) {
                                 _method.setAccessible(true);
                             }
-                            MethodHandles.Lookup lookup = InternalReflectionHandler.lookup(accessible);
+                            MethodHandles.Lookup lookup = ReflectionHandler.lookup(accessible);
                             if (reflectMethod.statical()) {
                                 this.methodHandle = lookup.unreflect(_method);
                             } else {
