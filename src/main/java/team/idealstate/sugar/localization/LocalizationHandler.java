@@ -18,27 +18,23 @@ package team.idealstate.sugar.localization;
 
 import team.idealstate.sugar.localization.annotation.Alias;
 import team.idealstate.sugar.localization.exception.LocalizationException;
-import team.idealstate.sugar.reflection.ReflectionInvocationHandler;
 
+import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-class InternalLocalizationHandler implements ReflectionInvocationHandler {
+class LocalizationHandler implements InvocationHandler {
 
     private final Map<String, Object> dictionary;
     private final Map<String, Object> cache = new ConcurrentHashMap<>(16, 0.6F);
 
-    InternalLocalizationHandler(Map<String, Object> dictionary) {
+    LocalizationHandler(Map<String, Object> dictionary) {
         this.dictionary = dictionary;
     }
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-        Object ret = ReflectionInvocationHandler.super.invoke(proxy, method, args);
-        if (ret != null) {
-            return ret;
-        }
         String methodName = method.getName();
         if (cache.containsKey(methodName)) {
             return cache.get(methodName);

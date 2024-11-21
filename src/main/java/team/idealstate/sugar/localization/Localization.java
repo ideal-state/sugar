@@ -45,7 +45,7 @@ public abstract class Localization {
     }
 
     @NotNull
-    public static <T> T localize(@NotNull Class<T> localizationInterface, Locale locale, Locale fallbackLocale) {
+    public static <T> T load(@NotNull Class<T> localizationInterface, Locale locale, Locale fallbackLocale) {
         Validation.notNull(localizationInterface, "localizationInterface must not be null");
         Validation.vote(localizationInterface.isInterface(), "localizationInterface must be an interface");
         locale = locale != null ? locale : Locale.current();
@@ -67,12 +67,12 @@ public abstract class Localization {
         for (Map.Entry<Object, Object> entry : properties.entrySet()) {
             dictionary.put(entry.getKey().toString(), entry.getValue());
         }
-        return localize(localizationInterface, dictionary);
+        return load(localizationInterface, dictionary);
     }
 
     @NotNull
     @SuppressWarnings({"unchecked"})
-    public static <T> T localize(@NotNull Class<T> localizationInterface, @NotNull Map<String, Object> dictionary) {
+    public static <T> T load(@NotNull Class<T> localizationInterface, @NotNull Map<String, Object> dictionary) {
         Validation.notNull(localizationInterface, "localizationInterface must not be null");
         Validation.vote(localizationInterface.isInterface(), "localizationInterface must be an interface");
         Validation.notNull(dictionary, "dictionary must not be null");
@@ -80,7 +80,7 @@ public abstract class Localization {
         return (T) Proxy.newProxyInstance(
                 localizationInterface.getClassLoader(),
                 new Class[]{localizationInterface},
-                new InternalLocalizationHandler(dictionary)
+                new LocalizationHandler(dictionary)
         );
     }
 }
