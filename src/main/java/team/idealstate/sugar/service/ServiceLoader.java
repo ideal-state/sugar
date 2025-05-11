@@ -18,6 +18,7 @@ package team.idealstate.sugar.service;
 
 import java.util.Iterator;
 import java.util.function.Supplier;
+import team.idealstate.sugar.service.exception.ServiceException;
 import team.idealstate.sugar.validate.annotation.NotNull;
 
 @SuppressWarnings({"unused"})
@@ -40,12 +41,12 @@ public abstract class ServiceLoader {
             if (service == null) {
                 service = iterator.next();
             } else {
-                throw new IllegalStateException(String.format("More than one service found for %s.", serviceName));
+                throw new ServiceException(String.format("More than one service found for %s.", serviceName));
             }
         }
         if (service == null) {
             if (defaultSupplier == null) {
-                throw new IllegalStateException(String.format("No service found for %s.", serviceName));
+                throw new ServiceException(String.format("No service found for %s.", serviceName));
             }
             service = defaultSupplier.get();
         }
