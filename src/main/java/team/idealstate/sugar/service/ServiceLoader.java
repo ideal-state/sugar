@@ -27,6 +27,10 @@ public abstract class ServiceLoader {
         return singleton(serviceType, null, null);
     }
 
+    public static <T> T singleton(@NotNull Class<T> serviceType, ClassLoader classLoader) {
+        return singleton(serviceType, classLoader, null);
+    }
+
     public static <T> T singleton(@NotNull Class<T> serviceType, ClassLoader classLoader, Supplier<T> defaultSupplier) {
         java.util.ServiceLoader<T> serviceLoader = java.util.ServiceLoader.load(serviceType, classLoader);
         Iterator<T> iterator = serviceLoader.iterator();

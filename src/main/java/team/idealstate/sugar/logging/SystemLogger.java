@@ -19,7 +19,7 @@ package team.idealstate.sugar.logging;
 import java.util.function.Supplier;
 import team.idealstate.sugar.validate.annotation.NotNull;
 
-public class SystemLogger implements Logger {
+final class SystemLogger implements Logger {
 
     private static volatile SystemLogger instance;
 

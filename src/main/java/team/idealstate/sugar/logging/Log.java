@@ -22,51 +22,63 @@ import java.util.function.Supplier;
 import team.idealstate.sugar.service.ServiceLoader;
 import team.idealstate.sugar.validate.Validation;
 import team.idealstate.sugar.validate.annotation.NotNull;
+import team.idealstate.sugar.validate.annotation.Nullable;
 
 public abstract class Log {
 
     public static final String LOG_LEVEL_KEY = "sugar.log.level";
-    private static volatile Logger GLOBAL = null;
-    private static volatile LogLevel LEVEL;
+    private static volatile Logger globalLogger = null;
+    private static volatile LogLevel globalLevel;
 
     static {
         String logLevel = System.getProperty(LOG_LEVEL_KEY);
         if (logLevel == null) {
-            LEVEL = LogLevel.INFO;
+            globalLevel = LogLevel.INFO;
         } else {
             try {
-                LEVEL = LogLevel.valueOf(logLevel);
+                globalLevel = LogLevel.valueOf(logLevel);
             } catch (IllegalArgumentException ignored) {
-                LEVEL = LogLevel.INFO;
+                globalLevel = LogLevel.INFO;
             }
         }
     }
 
     @NotNull
     public static Logger getLogger() {
-        if (GLOBAL == null) {
+        if (globalLogger == null) {
             synchronized (Log.class) {
-                if (GLOBAL == null) {
+                if (globalLogger == null) {
                     try {
-                        GLOBAL = ServiceLoader.singleton(
-                                Logger.class, Logger.class.getClassLoader(), SystemLogger::instance);
+                        globalLogger = ServiceLoader.singleton(Logger.class, Logger.class.getClassLoader());
                     } catch (NoClassDefFoundError e) {
                         System.err.println(makeThrowableDetails(e));
-                        GLOBAL = SystemLogger.instance();
+                        return SystemLogger.instance();
                     }
                 }
             }
         }
-        return GLOBAL;
+        return globalLogger;
+    }
+
+    @Nullable
+    public static Logger setLogger(@NotNull Logger logger) {
+        Validation.notNull(logger, "Logger must not be null.");
+        Logger globalLogger = Log.globalLogger;
+        Log.globalLogger = logger;
+        return globalLogger;
     }
 
     @NotNull
     public static LogLevel getLevel() {
-        return LEVEL;
+        return globalLevel;
     }
 
-    public static void setLevel(@NotNull LogLevel level) {
-        LEVEL = Validation.requireNotNull(level, "Log level cannot be null.");
+    @NotNull
+    public static LogLevel setLevel(@NotNull LogLevel level) {
+        Validation.notNull(level, "Log level must not be null.");
+        LogLevel globalLevel = Log.globalLevel;
+        Log.globalLevel = level;
+        return globalLevel;
     }
 
     public static boolean isEnabledLevel(@NotNull LogLevel level) {
