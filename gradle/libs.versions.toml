@@ -4,6 +4,7 @@ lombok = "1.18.38"
 asm = "9.8"
 snakeyaml = "2.4"
 maven-resolver = "1.9.22"
+slf4j-simple = "2.0.17"
 
 [plugins]
 jreleaser = { id = "org.jreleaser", version.ref = "jreleaser" }
@@ -13,3 +14,4 @@ lombok = { group = "org.projectlombok", name = "lombok", version.ref = "lombok" 
 asm = { group = "org.ow2.asm", name = "asm", version.ref = "asm" }
 snakeyaml = { group = "org.yaml", name = "snakeyaml", version.ref = "snakeyaml" }
 maven-resolver-supplier = { group = "org.apache.maven.resolver", name = "maven-resolver-supplier", version.ref = "maven-resolver" }
+slf4j-simple = { group = "org.slf4j", name = "slf4j-simple", version.ref = "slf4j-simple" }

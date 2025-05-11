@@ -56,6 +56,7 @@ repositories {
 dependencies {
     compileOnly(java(project, "tools"))
 
+    internal(libs.slf4j.simple)
     internal(libs.asm)
     internal(libs.snakeyaml)
     internal(libs.maven.resolver.supplier)
