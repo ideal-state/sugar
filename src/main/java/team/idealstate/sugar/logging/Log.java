@@ -16,8 +16,6 @@
 
 package team.idealstate.sugar.logging;
 
-import static team.idealstate.sugar.logging.Internal.makeThrowableDetails;
-
 import java.util.function.Supplier;
 import team.idealstate.sugar.service.ServiceLoader;
 import team.idealstate.sugar.validate.Validation;
@@ -46,23 +44,23 @@ public abstract class Log {
     @NotNull
     public static Logger getLogger() {
         if (globalLogger == null) {
-            synchronized (Log.class) {
-                if (globalLogger == null) {
-                    try {
-                        Logger logger = ServiceLoader.singleton(
-                                Logger.class, Logger.class.getClassLoader(), SystemLogger::instance);
-                        if (logger instanceof SystemLogger) {
-                            return logger;
-                        }
-                        globalLogger = logger;
-                    } catch (NoClassDefFoundError e) {
-                        System.err.println(makeThrowableDetails(e));
-                        return SystemLogger.instance();
-                    }
-                }
-            }
+            return SystemLogger.instance();
         }
         return globalLogger;
+    }
+
+    @Nullable
+    public static Logger getLogger(@NotNull ClassLoader classLoader) {
+        Validation.notNull(classLoader, "Class loader must not be null.");
+        try {
+            Logger logger = ServiceLoader.singleton(Logger.class, classLoader, SystemLogger::instance);
+            if (logger instanceof SystemLogger) {
+                return null;
+            }
+            return logger;
+        } catch (NoClassDefFoundError ignored) {
+        }
+        return null;
     }
 
     @Nullable
