@@ -23,8 +23,18 @@
 
 ------------------------------------------------------------------------------
 
-    snakeyaml
-    (https://bitbucket.org/snakeyaml/snakeyaml)
+    jackson-dataformats-text:
+        jackson-dataformat-yaml
+    (https://github.com/FasterXML/jackson-dataformats-text)
+    Apache License 2.0
+
+------------------------------------------------------------------------------
+
+    jackson-modules-java8:
+        jackson-module-parameter-names
+        jackson-datatype-jsr310
+        jackson-datatype-jdk8
+    (https://github.com/FasterXML/jackson-modules-java8)
     Apache License 2.0
 
 ------------------------------------------------------------------------------
