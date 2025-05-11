@@ -19,14 +19,17 @@ package team.idealstate.sugar.maven;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.StringJoiner;
 import java.util.stream.Collectors;
 import org.apache.maven.repository.internal.MavenRepositorySystemUtils;
 import org.eclipse.aether.DefaultRepositorySystemSession;
@@ -37,6 +40,7 @@ import org.eclipse.aether.graph.Dependency;
 import org.eclipse.aether.repository.LocalRepository;
 import org.eclipse.aether.repository.RemoteRepository;
 import org.eclipse.aether.repository.RepositoryPolicy;
+import org.eclipse.aether.resolution.ArtifactRequest;
 import org.eclipse.aether.resolution.ArtifactResult;
 import org.eclipse.aether.resolution.DependencyRequest;
 import org.eclipse.aether.resolution.DependencyResolutionException;
@@ -86,7 +90,7 @@ public class MavenResolver {
             //noinspection ResultOfMethodCallIgnored
             localRepository.mkdirs();
         }
-        session.setChecksumPolicy(RepositoryPolicy.CHECKSUM_POLICY_FAIL);
+
         session.setLocalRepositoryManager(
                 system.newLocalRepositoryManager(session, new LocalRepository(localRepository)));
         if (configuration.getLog()) {
@@ -94,23 +98,98 @@ public class MavenResolver {
         }
         session.setReadOnly();
         Map<String, MavenConfiguration.Repository> repos = configuration.getRepositories();
-        Set<RemoteRepository> remoteRepositories = new LinkedHashSet<>(repos.size() + 1);
+        Collection<RemoteRepository> remoteRepositories = new LinkedHashSet<>(repos.size());
         for (Map.Entry<String, MavenConfiguration.Repository> entry : repos.entrySet()) {
             String id = entry.getKey();
             MavenConfiguration.Repository repository = entry.getValue();
-            remoteRepositories.add(new RemoteRepository.Builder(id, "default", repository.getUrl()).build());
+            remoteRepositories.add(new RemoteRepository.Builder(id, "default", repository.getUrl())
+                    .setReleasePolicy(new RepositoryPolicy(
+                            true, RepositoryPolicy.UPDATE_POLICY_NEVER, RepositoryPolicy.CHECKSUM_POLICY_WARN))
+                    .setSnapshotPolicy(new RepositoryPolicy(
+                            true, RepositoryPolicy.UPDATE_POLICY_ALWAYS, RepositoryPolicy.CHECKSUM_POLICY_WARN))
+                    .build());
         }
-        this.repositories = system.newResolutionRepositories(session, new ArrayList<>(remoteRepositories));
+        if (configuration.getLocal()) {
+            remoteRepositories = new LinkedList<>(remoteRepositories);
+            try {
+                ((LinkedList<RemoteRepository>) remoteRepositories)
+                        .addFirst(new RemoteRepository.Builder(
+                                        "local",
+                                        "default",
+                                        localRepository.toURI().toURL().toString())
+                                .setReleasePolicy(new RepositoryPolicy(
+                                        true,
+                                        RepositoryPolicy.UPDATE_POLICY_NEVER,
+                                        RepositoryPolicy.CHECKSUM_POLICY_WARN))
+                                .setSnapshotPolicy(new RepositoryPolicy(
+                                        true,
+                                        RepositoryPolicy.UPDATE_POLICY_ALWAYS,
+                                        RepositoryPolicy.CHECKSUM_POLICY_WARN))
+                                .build());
+            } catch (MalformedURLException e) {
+                throw new MavenException(e);
+            }
+        }
+        this.repositories = system.newResolutionRepositories(
+                session,
+                remoteRepositories instanceof List
+                        ? (List<RemoteRepository>) remoteRepositories
+                        : new ArrayList<>(remoteRepositories));
     }
 
     @NotNull
-    public List<Artifact> resolve(@NotNull List<Dependency> dependencies) {
+    public static Map<String, File> notMissingOrEx(@NotNull List<ArtifactResult> artifactResults) {
+        Validation.notNull(artifactResults, "Artifact results must not be null.");
+        if (artifactResults.isEmpty()) {
+            return Collections.emptyMap();
+        }
+        Map<String, File> files = new LinkedHashMap<>(artifactResults.size());
+        for (ArtifactResult artifactResult : artifactResults) {
+            ArtifactRequest request = artifactResult.getRequest();
+            Artifact artifact = request.getArtifact();
+            Validation.notNull(artifact, "Artifact must not be null.");
+            String id = new StringJoiner(":")
+                    .add(artifact.getGroupId())
+                    .add(artifact.getArtifactId())
+                    .add(artifact.getExtension())
+                    .add(artifact.getClassifier())
+                    .add(artifact.getBaseVersion())
+                    .toString();
+            if (artifactResult.isMissing()) {
+                throw new MavenException(String.format("The dependency '%s' is missing.", id));
+            }
+            artifact = artifactResult.getArtifact();
+            if (artifact == null || !artifactResult.isResolved()) {
+                for (Exception exception : artifactResult.getExceptions()) {
+                    Log.error(exception);
+                }
+                throw new MavenException(String.format("The dependency '%s' cannot resolved.", id));
+            }
+            id = new StringJoiner(":")
+                    .add(artifact.getGroupId())
+                    .add(artifact.getArtifactId())
+                    .add(artifact.getExtension())
+                    .add(artifact.getClassifier())
+                    .add(artifact.getVersion())
+                    .toString();
+            File file = artifact.getFile();
+            if (!file.exists()) {
+                throw new MavenException(
+                        String.format("The dependency '%s' file '%s' is missing.", id, file.getAbsolutePath()));
+            }
+            files.put(id, file);
+        }
+        return files;
+    }
+
+    @NotNull
+    public List<ArtifactResult> resolve(@NotNull List<Dependency> dependencies) {
         return resolve(dependencies, JavaScopes.COMPILE, JavaScopes.RUNTIME);
     }
 
     /** @param scopes {@link JavaScopes} */
     @NotNull
-    public List<Artifact> resolve(@NotNull List<Dependency> dependencies, @NotNull String... scopes) {
+    public List<ArtifactResult> resolve(@NotNull List<Dependency> dependencies, @NotNull String... scopes) {
         Validation.requireNotNull(dependencies, "Dependencies must not be null.");
         Validation.requireNotNull(scopes, "Scopes must not be null.");
         if (dependencies.isEmpty()) {
@@ -142,10 +221,7 @@ public class MavenResolver {
         } catch (DependencyResolutionException e) {
             throw new MavenException("The dependency resolution failed.", e);
         }
-        return dependencyResult.getArtifactResults().stream()
-                .map(ArtifactResult::getArtifact)
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
+        return dependencyResult.getArtifactResults();
     }
 
     private static class TransferLog extends AbstractTransferListener {
@@ -165,7 +241,7 @@ public class MavenResolver {
         @Override
         public void transferFailed(TransferEvent event) {
             TransferResource resource = event.getResource();
-            Log.error(String.format(
+            Log.debug(() -> String.format(
                     "Failed to download '%s'.", resource.getRepositoryUrl() + resource.getResourceName()));
         }
     }

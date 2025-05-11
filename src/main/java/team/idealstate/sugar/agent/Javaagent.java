@@ -23,13 +23,15 @@ import java.lang.management.ManagementFactory;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Collections;
-import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.jar.JarFile;
-import org.eclipse.aether.artifact.Artifact;
 import org.eclipse.aether.artifact.DefaultArtifact;
 import org.eclipse.aether.graph.Dependency;
 import org.eclipse.aether.util.artifact.JavaScopes;
 import team.idealstate.sugar.SugarLibraryLoader;
+import team.idealstate.sugar.SugarLoggerLoader;
 import team.idealstate.sugar.agent.exception.JavaagentException;
 import team.idealstate.sugar.banner.Banner;
 import team.idealstate.sugar.bundled.Bundled;
@@ -59,27 +61,46 @@ public abstract class Javaagent {
 
     private static void doMain(String arguments, @NotNull Instrumentation instrumentation) throws IOException {
         Validation.requireNotNull(instrumentation, "Instrumentation must not be null.");
+        setInstrumentation(instrumentation);
         Banner.lines(Javaagent.class).forEach(Log::info);
         Bundled.release(Javaagent.class, new File("./"));
         MavenResolver mavenResolver = new MavenResolver();
         if (arguments != null) {
-            List<Artifact> artifacts = mavenResolver.resolve(Collections.singletonList(new Dependency(
-                    new DefaultArtifact("team.idealstate.sugar:sugar-next:" + arguments), JavaScopes.COMPILE)));
-            if (!artifacts.isEmpty()) {
-                for (Artifact artifact : artifacts) {
-                    File artifactFile = artifact.getFile();
-                    if (!artifactFile.exists()
-                            || artifactFile.isDirectory()
-                            || !artifactFile.getName().equals(".jar")) {
-                        continue;
-                    }
-                    Log.info(String.format("Loading dependency '%s'...", artifactFile.getAbsolutePath()));
-                    instrumentation.appendToSystemClassLoaderSearch(new JarFile(artifactFile));
-                }
+            Map<String, File> artifacts =
+                    MavenResolver.notMissingOrEx(mavenResolver.resolve(Collections.singletonList(new Dependency(
+                            new DefaultArtifact("team.idealstate.sugar:sugar-next:" + arguments),
+                            JavaScopes.COMPILE))));
+            appendToSystemClassLoaderSearch(artifacts);
+        }
+        SugarLibraryLoader.addTo(instrumentation, mavenResolver);
+        SugarLoggerLoader.addTo(instrumentation);
+    }
+
+    private static final Set<String> LOADED = new CopyOnWriteArraySet<>();
+
+    public static void appendToSystemClassLoaderSearch(@NotNull Map<String, File> artifacts) {
+        Instrumentation instrumentation = instrumentation();
+        Validation.notNull(artifacts, "Artifacts must not be null.");
+        if (artifacts.isEmpty()) {
+            return;
+        }
+        for (Map.Entry<String, File> entry : artifacts.entrySet()) {
+            File artifact = entry.getValue();
+            if (artifact.isDirectory() || !artifact.getName().endsWith(".jar")) {
+                continue;
+            }
+            String path = artifact.toPath().normalize().toString();
+            if (!LOADED.add(path)) {
+                continue;
+            }
+            String id = entry.getKey();
+            try {
+                instrumentation.appendToSystemClassLoaderSearch(new JarFile(artifact));
+                Log.info(() -> String.format("Append to system classpath: '%s'", id));
+            } catch (IOException e) {
+                throw new SugarException(e);
             }
         }
-        instrumentation.addTransformer(new SugarLibraryLoader(instrumentation, mavenResolver));
-        setInstrumentation(instrumentation);
     }
 
     private static volatile Instrumentation instrumentation = null;

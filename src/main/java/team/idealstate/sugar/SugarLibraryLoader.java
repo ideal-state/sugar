@@ -30,15 +30,18 @@ import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
-import org.eclipse.aether.artifact.Artifact;
 import org.eclipse.aether.graph.Dependency;
 import org.objectweb.asm.ClassReader;
+import team.idealstate.sugar.agent.Javaagent;
 import team.idealstate.sugar.exception.SugarException;
-import team.idealstate.sugar.logging.Log;
 import team.idealstate.sugar.maven.MavenResolver;
 import team.idealstate.sugar.maven.PomXmlResolver;
 import team.idealstate.sugar.validate.Validation;
@@ -46,21 +49,20 @@ import team.idealstate.sugar.validate.annotation.NotNull;
 
 public final class SugarLibraryLoader implements ClassFileTransformer {
 
-    private static final Set<String> RESOLVED = new CopyOnWriteArraySet<>();
-
-    private static boolean isResolved(@NotNull File file) {
-        return !RESOLVED.add(file.getAbsolutePath());
+    public static void addTo(
+            @NotNull Instrumentation instrumentation, @NotNull MavenResolver mavenResolver, @NotNull String... scopes) {
+        Validation.notNull(instrumentation, "Instrumentation must not be null.");
+        instrumentation.addTransformer(new SugarLibraryLoader(mavenResolver, scopes), false);
     }
 
+    private static final Set<String> RESOLVED = new CopyOnWriteArraySet<>();
+    private static final Map<String, Lock> RESOLVING = new ConcurrentHashMap<>();
+
     private final MavenResolver mavenResolver;
-    private final Instrumentation instrumentation;
     private final String[] scopes;
 
-    public SugarLibraryLoader(
-            @NotNull Instrumentation instrumentation, @NotNull MavenResolver mavenResolver, @NotNull String... scopes) {
-        Validation.requireNotNull(instrumentation, "Instrumentation must not be null.");
+    private SugarLibraryLoader(@NotNull MavenResolver mavenResolver, @NotNull String... scopes) {
         Validation.requireNotNull(mavenResolver, "Maven resolver must not be null.");
-        this.instrumentation = instrumentation;
         this.mavenResolver = mavenResolver;
         this.scopes = scopes;
         try {
@@ -70,8 +72,7 @@ public final class SugarLibraryLoader implements ClassFileTransformer {
                             .getCodeSource()
                             .getLocation()
                             .toURI()),
-                    null,
-                    true);
+                    null);
         } catch (URISyntaxException e) {
             throw new SugarException(e);
         }
@@ -98,106 +99,117 @@ public final class SugarLibraryLoader implements ClassFileTransformer {
         File file;
         try {
             file = new File(location.toURI());
-            if (isResolved(file)) {
+            String key = makeKey(file);
+            if (RESOLVED.contains(key)) {
+                RESOLVING.remove(key);
                 return null;
             }
-            if (!Sugar.class.equals(Class.forName(Sugar.class.getName(), false, loader))) {
-                return null;
-            }
-            String[] interfaces = new ClassReader(buffer).getInterfaces();
-            if (interfaces.length != 0
-                    && Arrays.stream(interfaces)
-                            .anyMatch(i -> Sugar.class.getName().equals(i))) {
-                loadDependencies(file, null, false);
-            } else {
-                try (JarFile jarFile = new JarFile(file)) {
-                    Enumeration<JarEntry> entries = jarFile.entries();
-                    boolean found = false;
-                    while (entries.hasMoreElements()) {
-                        JarEntry entry = entries.nextElement();
-                        if (entry.isDirectory()) {
-                            continue;
-                        }
-                        String entryName = entry.getName();
-                        if (!entryName.endsWith(".class")) {
-                            continue;
-                        }
-                        String className1 =
-                                entryName.substring(0, entryName.length() - 6).replace('\\', '/');
-                        try (InputStream input = jarFile.getInputStream(entry)) {
-                            ClassReader classReader = new ClassReader(input);
-                            if (!className1.equals(classReader.getClassName())) {
+            Lock lock = RESOLVING.computeIfAbsent(key, k -> new ReentrantLock());
+            lock.lock();
+            try {
+                if (RESOLVED.contains(key)) {
+                    return null;
+                }
+                String sugarClassName = Sugar.class.getName();
+                if (!Sugar.class.equals(Class.forName(sugarClassName, false, loader))) {
+                    return null;
+                }
+                sugarClassName = sugarClassName.replace('.', '/');
+                String[] interfaces = new ClassReader(buffer).getInterfaces();
+                if (interfaces.length != 0 && Arrays.asList(interfaces).contains(sugarClassName)) {
+                    loadDependencies(file, null);
+                } else {
+                    try (JarFile jarFile = new JarFile(file)) {
+                        Enumeration<JarEntry> entries = jarFile.entries();
+                        boolean found = false;
+                        EACH_ENTRIES:
+                        while (entries.hasMoreElements()) {
+                            JarEntry entry = entries.nextElement();
+                            if (entry.isDirectory()) {
                                 continue;
                             }
-                            interfaces = classReader.getInterfaces();
-                            if (interfaces.length != 0
-                                    && Arrays.stream(interfaces)
-                                            .anyMatch(i -> Sugar.class.getName().equals(i))) {
-                                found = true;
-                                break;
+                            String entryName = entry.getName();
+                            if (!entryName.endsWith(".class")) {
+                                continue;
+                            }
+                            String className1 = entryName
+                                    .substring(0, entryName.length() - 6)
+                                    .replace('\\', '/');
+                            try (InputStream input = jarFile.getInputStream(entry)) {
+                                ClassReader classReader = new ClassReader(input);
+                                if (!className1.equals(classReader.getClassName())) {
+                                    continue;
+                                }
+                                interfaces = classReader.getInterfaces();
+                                if (interfaces.length == 0) {
+                                    continue;
+                                }
+                                for (String anInterface : interfaces) {
+                                    if (sugarClassName.equals(anInterface)) {
+                                        found = true;
+                                        break EACH_ENTRIES;
+                                    }
+                                }
                             }
                         }
+                        if (!found) {
+                            return null;
+                        }
+                        loadDependencies(file, jarFile);
+                    } catch (IOException e) {
+                        throw new SugarException(e);
                     }
-                    if (!found) {
-                        return null;
-                    }
-                    loadDependencies(file, jarFile, false);
-                } catch (IOException e) {
-                    throw new SugarException(e);
                 }
+                return null;
+            } finally {
+                RESOLVED.add(key);
+                lock.unlock();
             }
         } catch (ClassNotFoundException | URISyntaxException e) {
             return null;
         }
-        return null;
     }
 
-    private void loadDependencies(@NotNull File file, JarFile jarFile, boolean verify) {
-        if (verify) {
-            if (isResolved(file)) {
-                return;
-            }
+    private static String makeKey(@NotNull File file) {
+        return file.toPath().normalize().toString();
+    }
+
+    private void loadDependencies(@NotNull File file, JarFile jarFile) {
+        String key = makeKey(file);
+        if (RESOLVED.contains(key)) {
+            return;
         }
-        Set<Dependency> dependencies = new LinkedHashSet<>(128);
-        try (JarFile jar = jarFile == null ? new JarFile(file) : jarFile) {
-            Enumeration<JarEntry> entries = jar.entries();
-            while (entries.hasMoreElements()) {
-                JarEntry entry = entries.nextElement();
-                String entryName = entry.getName();
-                if (entry.isDirectory() || !entryName.startsWith("META-INF/maven/") || !entryName.endsWith("pom.xml")) {
-                    continue;
-                }
-                try (InputStream input = jar.getInputStream(entry)) {
-                    List<Dependency> resolve = PomXmlResolver.resolve(input);
-                    if (resolve.isEmpty()) {
+        try {
+            Set<Dependency> dependencies = new LinkedHashSet<>(128);
+            try (JarFile jar = jarFile == null ? new JarFile(file) : jarFile) {
+                Enumeration<JarEntry> entries = jar.entries();
+                while (entries.hasMoreElements()) {
+                    JarEntry entry = entries.nextElement();
+                    String entryName = entry.getName();
+                    if (entry.isDirectory()
+                            || !entryName.startsWith("META-INF/maven/")
+                            || !entryName.endsWith("pom.xml")) {
                         continue;
                     }
-                    dependencies.addAll(resolve);
+                    try (InputStream input = jar.getInputStream(entry)) {
+                        List<Dependency> resolve = PomXmlResolver.resolve(input);
+                        if (resolve.isEmpty()) {
+                            continue;
+                        }
+                        dependencies.addAll(resolve);
+                    }
                 }
-            }
-        } catch (IOException e) {
-            throw new SugarException(e);
-        }
-        if (dependencies.isEmpty()) {
-            return;
-        }
-        List<Artifact> artifacts = mavenResolver.resolve(new ArrayList<>(dependencies), scopes);
-        if (artifacts.isEmpty()) {
-            return;
-        }
-        for (Artifact artifact : artifacts) {
-            File artifactFile = artifact.getFile();
-            if (!artifactFile.exists()
-                    || artifactFile.isDirectory()
-                    || !artifactFile.getName().endsWith(".jar")) {
-                continue;
-            }
-            try {
-                Log.info(String.format("Loading dependency '%s'...", artifactFile.getAbsolutePath()));
-                instrumentation.appendToSystemClassLoaderSearch(new JarFile(artifactFile));
             } catch (IOException e) {
                 throw new SugarException(e);
             }
+            if (dependencies.isEmpty()) {
+                return;
+            }
+            Map<String, File> artifacts =
+                    MavenResolver.notMissingOrEx(mavenResolver.resolve(new ArrayList<>(dependencies), scopes));
+            Javaagent.appendToSystemClassLoaderSearch(artifacts);
+        } finally {
+            RESOLVED.add(key);
         }
     }
 }
