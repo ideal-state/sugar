@@ -16,11 +16,11 @@
 
 package team.idealstate.sugar.maven;
 
-import java.io.BufferedReader;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -50,7 +50,6 @@ import org.eclipse.aether.transfer.AbstractTransferListener;
 import org.eclipse.aether.transfer.TransferEvent;
 import org.eclipse.aether.transfer.TransferResource;
 import org.eclipse.aether.util.artifact.JavaScopes;
-import org.yaml.snakeyaml.Yaml;
 import team.idealstate.sugar.logging.Log;
 import team.idealstate.sugar.maven.exception.MavenException;
 import team.idealstate.sugar.validate.Validation;
@@ -65,8 +64,10 @@ public class MavenResolver {
 
     @NotNull
     private static MavenConfiguration loadConfiguration() {
-        try (BufferedReader reader = Files.newBufferedReader(CONFIG_FILE.toPath())) {
-            return new Yaml().loadAs(reader, MavenConfiguration.class);
+        try {
+            return new ObjectMapper(new YAMLFactory())
+                    .findAndRegisterModules()
+                    .readValue(CONFIG_FILE, MavenConfiguration.class);
         } catch (IOException e) {
             throw new MavenException(e);
         }
