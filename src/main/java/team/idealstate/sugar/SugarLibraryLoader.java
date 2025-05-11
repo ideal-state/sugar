@@ -26,7 +26,6 @@ import java.net.URL;
 import java.security.CodeSource;
 import java.security.ProtectionDomain;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -36,7 +35,6 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import org.eclipse.aether.artifact.Artifact;
 import org.eclipse.aether.graph.Dependency;
-import org.objectweb.asm.ClassReader;
 import team.idealstate.sugar.exception.SugarException;
 import team.idealstate.sugar.logging.Log;
 import team.idealstate.sugar.maven.MavenResolver;
@@ -100,13 +98,13 @@ public final class SugarLibraryLoader implements ClassFileTransformer {
             if (isResolved(file)) {
                 return null;
             }
-//            String[] interfaces = new ClassReader(buffer).getInterfaces();
-//            if (interfaces.length == 0) {
-//                return null;
-//            }
-//            if (Arrays.stream(interfaces).noneMatch(i -> Sugar.class.getName().equals(i))) {
-//                return null;
-//            }
+            //            String[] interfaces = new ClassReader(buffer).getInterfaces();
+            //            if (interfaces.length == 0) {
+            //                return null;
+            //            }
+            //            if (Arrays.stream(interfaces).noneMatch(i -> Sugar.class.getName().equals(i))) {
+            //                return null;
+            //            }
             if (!Sugar.class.equals(Class.forName(Sugar.class.getName(), false, loader))) {
                 return null;
             }
