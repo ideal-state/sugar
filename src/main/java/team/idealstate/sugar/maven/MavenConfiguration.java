@@ -31,6 +31,9 @@ public class MavenConfiguration {
     private Boolean log;
 
     @NonNull
+    private Boolean local;
+
+    @NonNull
     private Map<String, Repository> repositories;
 
     @Data
