@@ -89,7 +89,9 @@ public class MavenResolver {
         session.setChecksumPolicy(RepositoryPolicy.CHECKSUM_POLICY_FAIL);
         session.setLocalRepositoryManager(
                 system.newLocalRepositoryManager(session, new LocalRepository(localRepository)));
-        session.setTransferListener(new TransferLog());
+        if (configuration.getLog()) {
+            session.setTransferListener(new TransferLog());
+        }
         session.setReadOnly();
         Map<String, MavenConfiguration.Repository> repos = configuration.getRepositories();
         Set<RemoteRepository> remoteRepositories = new LinkedHashSet<>(repos.size() + 1);

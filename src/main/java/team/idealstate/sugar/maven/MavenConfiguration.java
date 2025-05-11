@@ -20,21 +20,23 @@ import java.util.Map;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import team.idealstate.sugar.validate.annotation.NotNull;
+import lombok.NonNull;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class MavenConfiguration {
 
-    @NotNull
+    @NonNull
+    private Boolean log;
+    @NonNull
     private Map<String, Repository> repositories;
 
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
     public static class Repository {
-        @NotNull
+        @NonNull
         private String url;
     }
 }
