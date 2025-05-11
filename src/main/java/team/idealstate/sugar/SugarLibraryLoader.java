@@ -100,13 +100,13 @@ public final class SugarLibraryLoader implements ClassFileTransformer {
             if (isResolved(file)) {
                 return null;
             }
-            String[] interfaces = new ClassReader(buffer).getInterfaces();
-            if (interfaces.length == 0) {
-                return null;
-            }
-            if (Arrays.stream(interfaces).noneMatch(i -> Sugar.class.getName().equals(i))) {
-                return null;
-            }
+//            String[] interfaces = new ClassReader(buffer).getInterfaces();
+//            if (interfaces.length == 0) {
+//                return null;
+//            }
+//            if (Arrays.stream(interfaces).noneMatch(i -> Sugar.class.getName().equals(i))) {
+//                return null;
+//            }
             if (!Sugar.class.equals(Class.forName(Sugar.class.getName(), false, loader))) {
                 return null;
             }
