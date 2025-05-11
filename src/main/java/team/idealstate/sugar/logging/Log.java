@@ -49,7 +49,12 @@ public abstract class Log {
             synchronized (Log.class) {
                 if (globalLogger == null) {
                     try {
-                        globalLogger = ServiceLoader.singleton(Logger.class, Logger.class.getClassLoader());
+                        Logger logger = ServiceLoader.singleton(
+                                Logger.class, Logger.class.getClassLoader(), SystemLogger::instance);
+                        if (logger instanceof SystemLogger) {
+                            return logger;
+                        }
+                        globalLogger = logger;
                     } catch (NoClassDefFoundError e) {
                         System.err.println(makeThrowableDetails(e));
                         return SystemLogger.instance();
