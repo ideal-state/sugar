@@ -29,6 +29,7 @@ public class MavenConfiguration {
 
     @NonNull
     private Boolean log;
+
     @NonNull
     private Map<String, Repository> repositories;
 
