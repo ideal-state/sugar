@@ -16,17 +16,15 @@
 
 package team.idealstate.sugar;
 
-import team.idealstate.sugar.logging.Log;
-import team.idealstate.sugar.logging.Logger;
-import team.idealstate.sugar.validate.Validation;
-import team.idealstate.sugar.validate.annotation.NotNull;
-
 import java.lang.instrument.ClassFileTransformer;
-import java.lang.instrument.IllegalClassFormatException;
 import java.lang.instrument.Instrumentation;
 import java.security.ProtectionDomain;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
+import team.idealstate.sugar.logging.Log;
+import team.idealstate.sugar.logging.Logger;
+import team.idealstate.sugar.validate.Validation;
+import team.idealstate.sugar.validate.annotation.NotNull;
 
 public final class SugarLoggerLoader implements ClassFileTransformer {
 
@@ -55,7 +53,10 @@ public final class SugarLoggerLoader implements ClassFileTransformer {
             return null;
         }
         int identityHashCode = System.identityHashCode(loader);
-        if (loader == null || ClassLoader.getSystemClassLoader().equals(loader) || classBeingRedefined != null || !LOADING.add(identityHashCode)) {
+        if (loader == null
+                || ClassLoader.getSystemClassLoader().equals(loader)
+                || classBeingRedefined != null
+                || !LOADING.add(identityHashCode)) {
             return null;
         }
         try {

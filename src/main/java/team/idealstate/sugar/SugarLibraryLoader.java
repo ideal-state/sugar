@@ -16,14 +16,6 @@
 
 package team.idealstate.sugar;
 
-import org.eclipse.aether.graph.Dependency;
-import team.idealstate.sugar.agent.Javaagent;
-import team.idealstate.sugar.exception.SugarException;
-import team.idealstate.sugar.maven.MavenResolver;
-import team.idealstate.sugar.maven.PomXmlResolver;
-import team.idealstate.sugar.validate.Validation;
-import team.idealstate.sugar.validate.annotation.NotNull;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -47,6 +39,13 @@ import java.util.jar.Attributes;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
+import org.eclipse.aether.graph.Dependency;
+import team.idealstate.sugar.agent.Javaagent;
+import team.idealstate.sugar.exception.SugarException;
+import team.idealstate.sugar.maven.MavenResolver;
+import team.idealstate.sugar.maven.PomXmlResolver;
+import team.idealstate.sugar.validate.Validation;
+import team.idealstate.sugar.validate.annotation.NotNull;
 
 public final class SugarLibraryLoader implements ClassFileTransformer {
 
@@ -67,12 +66,11 @@ public final class SugarLibraryLoader implements ClassFileTransformer {
         this.mavenResolver = mavenResolver;
         this.scopes = scopes;
         try {
-            loadDependencies(
-                    new File(Sugar.class
-                            .getProtectionDomain()
-                            .getCodeSource()
-                            .getLocation()
-                            .toURI()));
+            loadDependencies(new File(Sugar.class
+                    .getProtectionDomain()
+                    .getCodeSource()
+                    .getLocation()
+                    .toURI()));
         } catch (URISyntaxException e) {
             throw new SugarException(e);
         }
@@ -150,7 +148,8 @@ public final class SugarLibraryLoader implements ClassFileTransformer {
                 if (sugar == null || !sugar.isEnabled()) {
                     return;
                 }
-                String pomPath = String.format("META-INF/maven/%s/%s/pom.xml", sugar.getGroupId(), sugar.getArtifactId());
+                String pomPath =
+                        String.format("META-INF/maven/%s/%s/pom.xml", sugar.getGroupId(), sugar.getArtifactId());
                 Enumeration<JarEntry> entries = jar.entries();
                 while (entries.hasMoreElements()) {
                     JarEntry entry = entries.nextElement();

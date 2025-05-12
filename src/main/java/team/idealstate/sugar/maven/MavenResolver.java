@@ -147,13 +147,9 @@ public class MavenResolver {
                 .add(artifact.getExtension())
                 .add(artifact.getClassifier());
         if (base) {
-            return joiner
-                    .add(artifact.getBaseVersion())
-                    .toString();
+            return joiner.add(artifact.getBaseVersion()).toString();
         } else {
-            return joiner
-                    .add(artifact.getVersion())
-                    .toString();
+            return joiner.add(artifact.getVersion()).toString();
         }
     }
 

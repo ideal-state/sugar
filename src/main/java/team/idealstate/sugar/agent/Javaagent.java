@@ -16,21 +16,6 @@
 
 package team.idealstate.sugar.agent;
 
-import org.eclipse.aether.artifact.DefaultArtifact;
-import org.eclipse.aether.graph.Dependency;
-import org.eclipse.aether.util.artifact.JavaScopes;
-import team.idealstate.sugar.Sugar;
-import team.idealstate.sugar.SugarLibraryLoader;
-import team.idealstate.sugar.SugarLoggerLoader;
-import team.idealstate.sugar.agent.exception.JavaagentException;
-import team.idealstate.sugar.banner.Banner;
-import team.idealstate.sugar.bundled.Bundled;
-import team.idealstate.sugar.exception.SugarException;
-import team.idealstate.sugar.logging.Log;
-import team.idealstate.sugar.maven.MavenResolver;
-import team.idealstate.sugar.validate.Validation;
-import team.idealstate.sugar.validate.annotation.NotNull;
-
 import java.io.File;
 import java.io.IOException;
 import java.lang.instrument.Instrumentation;
@@ -46,6 +31,20 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.jar.JarFile;
+import org.eclipse.aether.artifact.DefaultArtifact;
+import org.eclipse.aether.graph.Dependency;
+import org.eclipse.aether.util.artifact.JavaScopes;
+import team.idealstate.sugar.Sugar;
+import team.idealstate.sugar.SugarLibraryLoader;
+import team.idealstate.sugar.SugarLoggerLoader;
+import team.idealstate.sugar.agent.exception.JavaagentException;
+import team.idealstate.sugar.banner.Banner;
+import team.idealstate.sugar.bundled.Bundled;
+import team.idealstate.sugar.exception.SugarException;
+import team.idealstate.sugar.logging.Log;
+import team.idealstate.sugar.maven.MavenResolver;
+import team.idealstate.sugar.validate.Validation;
+import team.idealstate.sugar.validate.annotation.NotNull;
 
 public abstract class Javaagent {
 
@@ -74,8 +73,8 @@ public abstract class Javaagent {
         if (arguments != null) {
             String platform = arguments.trim();
             DefaultArtifact artifact = new DefaultArtifact(platform);
-            Map<String, File> artifacts =
-                    MavenResolver.notMissingOrEx(mavenResolver.resolve(Collections.singletonList(new Dependency(artifact, JavaScopes.COMPILE))));
+            Map<String, File> artifacts = MavenResolver.notMissingOrEx(
+                    mavenResolver.resolve(Collections.singletonList(new Dependency(artifact, JavaScopes.COMPILE))));
             String dependencyId = MavenResolver.makeDependencyId(artifact, true);
             Iterator<Map.Entry<String, File>> iterator = artifacts.entrySet().iterator();
             while (iterator.hasNext()) {
@@ -91,8 +90,12 @@ public abstract class Javaagent {
                     break;
                 }
                 into = new File(into, String.format("%s.%s", artifact.getArtifactId(), artifact.getExtension()));
-                Path intoPath = Files.copy(from.toPath(), into.toPath(), StandardCopyOption.REPLACE_EXISTING).toAbsolutePath().normalize();
-                Log.info(String.format("Apply platform '%s' from '%s' into '%s'.", platform, from.toPath().normalize(), intoPath));
+                Path intoPath = Files.copy(from.toPath(), into.toPath(), StandardCopyOption.REPLACE_EXISTING)
+                        .toAbsolutePath()
+                        .normalize();
+                Log.info(String.format(
+                        "Apply platform '%s' from '%s' into '%s'.",
+                        platform, from.toPath().normalize(), intoPath));
                 iterator.remove();
                 break;
             }
@@ -178,9 +181,9 @@ public abstract class Javaagent {
                     }
                 }
             } catch (NoSuchMethodException
-                     | ClassNotFoundException
-                     | IllegalAccessException
-                     | InvocationTargetException e) {
+                    | ClassNotFoundException
+                    | IllegalAccessException
+                    | InvocationTargetException e) {
                 throw new JavaagentException(e);
             }
         }
