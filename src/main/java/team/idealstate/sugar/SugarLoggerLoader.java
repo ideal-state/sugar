@@ -16,14 +16,17 @@
 
 package team.idealstate.sugar;
 
-import java.lang.instrument.ClassFileTransformer;
-import java.lang.instrument.IllegalClassFormatException;
-import java.lang.instrument.Instrumentation;
-import java.security.ProtectionDomain;
 import team.idealstate.sugar.logging.Log;
 import team.idealstate.sugar.logging.Logger;
 import team.idealstate.sugar.validate.Validation;
 import team.idealstate.sugar.validate.annotation.NotNull;
+
+import java.lang.instrument.ClassFileTransformer;
+import java.lang.instrument.IllegalClassFormatException;
+import java.lang.instrument.Instrumentation;
+import java.security.ProtectionDomain;
+import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 public final class SugarLoggerLoader implements ClassFileTransformer {
 
@@ -38,34 +41,40 @@ public final class SugarLoggerLoader implements ClassFileTransformer {
         this.instrumentation = instrumentation;
     }
 
+    private static final Set<Integer> LOADING = new CopyOnWriteArraySet<>();
+
     @Override
     public byte[] transform(
             ClassLoader loader,
             String className,
             Class<?> classBeingRedefined,
             ProtectionDomain protectionDomain,
-            byte[] buffer)
-            throws IllegalClassFormatException {
+            byte[] buffer) {
         Instrumentation instrumentation = this.instrumentation;
         if (instrumentation == null) {
             return null;
         }
-        if (loader == null || ClassLoader.getSystemClassLoader().equals(loader) || classBeingRedefined != null) {
+        int identityHashCode = System.identityHashCode(loader);
+        if (loader == null || ClassLoader.getSystemClassLoader().equals(loader) || classBeingRedefined != null || !LOADING.add(identityHashCode)) {
             return null;
         }
-        String loggerClassName = Logger.class.getName();
         try {
-            if (!Logger.class.equals(Class.forName(loggerClassName, false, loader))) {
+            String loggerClassName = Logger.class.getName();
+            try {
+                if (!Logger.class.equals(Class.forName(loggerClassName, false, loader))) {
+                    return null;
+                }
+            } catch (ClassNotFoundException e) {
                 return null;
             }
-        } catch (ClassNotFoundException e) {
-            return null;
-        }
-        Logger logger = Log.getLogger(loader);
-        if (logger != null) {
-            Log.setLogger(logger);
-            this.instrumentation = null;
-            instrumentation.removeTransformer(this);
+            Logger logger = Log.getLogger(loader);
+            if (logger != null) {
+                Log.setLogger(logger);
+                this.instrumentation = null;
+                instrumentation.removeTransformer(this);
+            }
+        } finally {
+            LOADING.remove(identityHashCode);
         }
         return null;
     }
