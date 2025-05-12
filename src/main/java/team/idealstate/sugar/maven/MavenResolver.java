@@ -139,6 +139,25 @@ public class MavenResolver {
     }
 
     @NotNull
+    public static String makeDependencyId(@NotNull Artifact artifact, boolean base) {
+        Validation.notNull(artifact, "Artifact must not be null.");
+        StringJoiner joiner = new StringJoiner(":")
+                .add(artifact.getGroupId())
+                .add(artifact.getArtifactId())
+                .add(artifact.getExtension())
+                .add(artifact.getClassifier());
+        if (base) {
+            return joiner
+                    .add(artifact.getBaseVersion())
+                    .toString();
+        } else {
+            return joiner
+                    .add(artifact.getVersion())
+                    .toString();
+        }
+    }
+
+    @NotNull
     public static Map<String, File> notMissingOrEx(@NotNull List<ArtifactResult> artifactResults) {
         Validation.notNull(artifactResults, "Artifact results must not be null.");
         if (artifactResults.isEmpty()) {
@@ -148,14 +167,7 @@ public class MavenResolver {
         for (ArtifactResult artifactResult : artifactResults) {
             ArtifactRequest request = artifactResult.getRequest();
             Artifact artifact = request.getArtifact();
-            Validation.notNull(artifact, "Artifact must not be null.");
-            String id = new StringJoiner(":")
-                    .add(artifact.getGroupId())
-                    .add(artifact.getArtifactId())
-                    .add(artifact.getExtension())
-                    .add(artifact.getClassifier())
-                    .add(artifact.getBaseVersion())
-                    .toString();
+            String id = makeDependencyId(artifact, true);
             if (artifactResult.isMissing()) {
                 throw new MavenException(String.format("The dependency '%s' is missing.", id));
             }
@@ -166,13 +178,7 @@ public class MavenResolver {
                 }
                 throw new MavenException(String.format("The dependency '%s' cannot resolved.", id));
             }
-            id = new StringJoiner(":")
-                    .add(artifact.getGroupId())
-                    .add(artifact.getArtifactId())
-                    .add(artifact.getExtension())
-                    .add(artifact.getClassifier())
-                    .add(artifact.getVersion())
-                    .toString();
+            id = makeDependencyId(artifact, true);
             File file = artifact.getFile();
             if (!file.exists()) {
                 throw new MavenException(
