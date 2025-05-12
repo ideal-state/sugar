@@ -16,20 +16,10 @@
 
 package team.idealstate.sugar.agent;
 
-import java.io.File;
-import java.io.IOException;
-import java.lang.instrument.Instrumentation;
-import java.lang.management.ManagementFactory;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.Collections;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.CopyOnWriteArraySet;
-import java.util.jar.JarFile;
 import org.eclipse.aether.artifact.DefaultArtifact;
 import org.eclipse.aether.graph.Dependency;
 import org.eclipse.aether.util.artifact.JavaScopes;
+import team.idealstate.sugar.Sugar;
 import team.idealstate.sugar.SugarLibraryLoader;
 import team.idealstate.sugar.SugarLoggerLoader;
 import team.idealstate.sugar.agent.exception.JavaagentException;
@@ -40,6 +30,22 @@ import team.idealstate.sugar.logging.Log;
 import team.idealstate.sugar.maven.MavenResolver;
 import team.idealstate.sugar.validate.Validation;
 import team.idealstate.sugar.validate.annotation.NotNull;
+
+import java.io.File;
+import java.io.IOException;
+import java.lang.instrument.Instrumentation;
+import java.lang.management.ManagementFactory;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.jar.JarFile;
 
 public abstract class Javaagent {
 
@@ -66,10 +72,30 @@ public abstract class Javaagent {
         Bundled.release(Javaagent.class, new File("./"));
         MavenResolver mavenResolver = new MavenResolver();
         if (arguments != null) {
+            String platform = arguments.trim();
+            DefaultArtifact artifact = new DefaultArtifact(platform);
             Map<String, File> artifacts =
-                    MavenResolver.notMissingOrEx(mavenResolver.resolve(Collections.singletonList(new Dependency(
-                            new DefaultArtifact("team.idealstate.sugar:sugar-next:" + arguments),
-                            JavaScopes.COMPILE))));
+                    MavenResolver.notMissingOrEx(mavenResolver.resolve(Collections.singletonList(new Dependency(artifact, JavaScopes.COMPILE))));
+            String dependencyId = MavenResolver.makeDependencyId(artifact, true);
+            Iterator<Map.Entry<String, File>> iterator = artifacts.entrySet().iterator();
+            while (iterator.hasNext()) {
+                Map.Entry<String, File> entry = iterator.next();
+                String key = entry.getKey();
+                if (!key.equals(dependencyId)) {
+                    continue;
+                }
+                File from = entry.getValue();
+                Sugar sugar = Sugar.load(new JarFile(from), true);
+                File into;
+                if (sugar == null || !sugar.isEnabled() || (into = sugar.getInto()) == null) {
+                    break;
+                }
+                into = new File(into, String.format("%s.%s", artifact.getArtifactId(), artifact.getExtension()));
+                Path intoPath = Files.copy(from.toPath(), into.toPath(), StandardCopyOption.REPLACE_EXISTING).toAbsolutePath().normalize();
+                Log.info(String.format("Apply platform '%s' from '%s' into '%s'.", platform, from.toPath().normalize(), intoPath));
+                iterator.remove();
+                break;
+            }
             appendToSystemClassLoaderSearch(artifacts);
         }
         SugarLibraryLoader.addTo(instrumentation, mavenResolver);
@@ -152,9 +178,9 @@ public abstract class Javaagent {
                     }
                 }
             } catch (NoSuchMethodException
-                    | ClassNotFoundException
-                    | IllegalAccessException
-                    | InvocationTargetException e) {
+                     | ClassNotFoundException
+                     | IllegalAccessException
+                     | InvocationTargetException e) {
                 throw new JavaagentException(e);
             }
         }
