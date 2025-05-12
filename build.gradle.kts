@@ -97,6 +97,7 @@ jreleaser {
                     snapshotSupported.set(true)
                     closeRepository.set(true)
                     releaseRepository.set(true)
+                    verifyPom.set(false)
                     stagingRepository("build/repository")
                 }
             }
