@@ -29,24 +29,34 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import team.idealstate.sugar.bundled.exception.BundledException;
 import team.idealstate.sugar.logging.Log;
+import team.idealstate.sugar.validate.Validation;
 import team.idealstate.sugar.validate.annotation.NotNull;
 
 public abstract class Bundled {
     public static final String BUNDLED_DIR_PATH = "bundled";
 
-    public static void release(@NotNull File destDir) {
-        release(Bundled.class, destDir, "/", false);
+    public static void release(@NotNull Class<?> holder, @NotNull File destDir) {
+        release(holder, destDir, null);
     }
 
-    public static void release(@NotNull Class<?> owner, @NotNull File destDir) {
-        release(owner, destDir, "/", false);
+    public static void release(@NotNull Class<?> holder, @NotNull File destDir, Exclude exclude) {
+        release(holder, destDir, "/", false, true, exclude);
     }
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
-    public static void release(@NotNull Class<?> owner, @NotNull File destDir, @NotNull String path, boolean overlay) {
+    public static void release(
+            @NotNull Class<?> holder,
+            @NotNull File destDir,
+            @NotNull String path,
+            boolean overlay,
+            boolean includeEmptyDir,
+            Exclude exclude) {
+        Validation.notNull(holder, "Holder must not be null.");
+        Validation.notNull(destDir, "Destination directory must not be null.");
+        Validation.notNull(path, "Path must not be null.");
         String mode = overlay ? " (overlay)" : "";
         Log.debug("Release bundled..." + mode);
-        CodeSource codeSource = owner.getProtectionDomain().getCodeSource();
+        CodeSource codeSource = holder.getProtectionDomain().getCodeSource();
         if (codeSource == null) {
             Log.warn("Code source is null, skip.");
             return;
@@ -74,9 +84,12 @@ public abstract class Bundled {
                         entryName = entryName.substring(BUNDLED_DIR_PATH.length());
                         File destFile = new File(destDir, entryName);
                         if (entry.isDirectory()) {
-                            if (!destFile.exists()) {
+                            if (includeEmptyDir && !destFile.exists()) {
                                 destFile.mkdirs();
                             }
+                            continue;
+                        }
+                        if (exclude != null && exclude.exclude(entryName)) {
                             continue;
                         }
                         Log.debug("Bundled entry: " + entryName);
@@ -108,5 +121,9 @@ public abstract class Bundled {
             throw new BundledException(e);
         }
         Log.debug("Release bundled done.");
+    }
+
+    public interface Exclude {
+        boolean exclude(@NotNull String path);
     }
 }
