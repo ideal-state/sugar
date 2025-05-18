@@ -33,7 +33,7 @@ import team.idealstate.sugar.validate.Validation;
 import team.idealstate.sugar.validate.annotation.NotNull;
 
 public abstract class Bundled {
-    public static final String BUNDLED_DIR_PATH = "bundled";
+    public static final String BUNDLED_DIR_PATH = "bundled/";
 
     public static void release(@NotNull Class<?> holder, @NotNull File destDir) {
         release(holder, destDir, null);
