@@ -18,6 +18,9 @@ package team.idealstate.sugar.maven;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -57,28 +60,36 @@ import team.idealstate.sugar.validate.annotation.NotNull;
 
 public class MavenResolver {
 
-    public static final File CONFIG_FILE = new File("./maven/config.yml");
+    public static final String CONFIG_FILE_PATH = "./maven/config.yml";
+    public static final String LOCAL_REPO_DIR_PATH = "./maven/repository";
     private final RepositorySystem system;
     private final DefaultRepositorySystemSession session;
     private final List<RemoteRepository> repositories;
 
     @NotNull
-    private static MavenConfiguration loadConfiguration() {
+    private static MavenConfiguration loadConfiguration(@NotNull File baseDir) {
+        Validation.requireNotNull(baseDir, "Base directory must not be null.");
         try {
             return new ObjectMapper(new YAMLFactory())
-                    .findAndRegisterModules()
-                    .readValue(CONFIG_FILE, MavenConfiguration.class);
+                    .registerModule(new JavaTimeModule())
+                    .registerModule(new ParameterNamesModule())
+                    .registerModule(new Jdk8Module())
+                    .readValue(new File(baseDir, CONFIG_FILE_PATH), MavenConfiguration.class);
         } catch (IOException e) {
             throw new MavenException(e);
         }
     }
 
     public MavenResolver() {
-        this(loadConfiguration());
+        this(new File("."));
     }
 
-    public MavenResolver(@NotNull MavenConfiguration configuration) {
-        this(configuration, new File(CONFIG_FILE.getParentFile(), "repository"));
+    public MavenResolver(@NotNull File baseDir) {
+        this(baseDir, loadConfiguration(baseDir));
+    }
+
+    public MavenResolver(@NotNull File baseDir, @NotNull MavenConfiguration configuration) {
+        this(configuration, new File(baseDir, LOCAL_REPO_DIR_PATH));
     }
 
     protected MavenResolver(@NotNull MavenConfiguration configuration, @NotNull File localRepository) {
