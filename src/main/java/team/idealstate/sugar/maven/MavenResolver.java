@@ -60,8 +60,8 @@ import team.idealstate.sugar.validate.annotation.NotNull;
 
 public class MavenResolver {
 
-    public static final String CONFIG_FILE_PATH = "./maven/config.yml";
-    public static final String LOCAL_REPO_DIR_PATH = "./maven/repository";
+    public static final String CONFIG_FILE_PATH = "maven/config.yml";
+    public static final String LOCAL_REPO_DIR_PATH = "maven/repository/";
     private final RepositorySystem system;
     private final DefaultRepositorySystemSession session;
     private final List<RemoteRepository> repositories;
