@@ -16,6 +16,9 @@
 
 package team.idealstate.sugar;
 
+import java.util.jar.Attributes;
+import java.util.jar.JarFile;
+import java.util.jar.Manifest;
 import lombok.Data;
 import lombok.NonNull;
 import team.idealstate.sugar.exception.SugarException;
@@ -24,10 +27,6 @@ import team.idealstate.sugar.string.StringUtils;
 import team.idealstate.sugar.validate.Validation;
 import team.idealstate.sugar.validate.annotation.NotNull;
 import team.idealstate.sugar.validate.annotation.Nullable;
-
-import java.util.jar.Attributes;
-import java.util.jar.JarFile;
-import java.util.jar.Manifest;
 
 @Data
 public final class Sugar {
