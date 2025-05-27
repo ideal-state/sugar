@@ -16,11 +16,6 @@
 
 package team.idealstate.sugar;
 
-import java.io.File;
-import java.nio.file.Path;
-import java.util.jar.Attributes;
-import java.util.jar.JarFile;
-import java.util.jar.Manifest;
 import lombok.Data;
 import lombok.NonNull;
 import team.idealstate.sugar.exception.SugarException;
@@ -29,6 +24,10 @@ import team.idealstate.sugar.string.StringUtils;
 import team.idealstate.sugar.validate.Validation;
 import team.idealstate.sugar.validate.annotation.NotNull;
 import team.idealstate.sugar.validate.annotation.Nullable;
+
+import java.util.jar.Attributes;
+import java.util.jar.JarFile;
+import java.util.jar.Manifest;
 
 @Data
 public final class Sugar {
@@ -66,24 +65,7 @@ public final class Sugar {
                     Log.warn(String.format("Version is not found in manifest '%s'.", jarFile.getName()));
                     return null;
                 }
-                String into = attributes.getValue("sugar-into");
-                File intoFile = null;
-                if (into != null) {
-                    intoFile = new File(into);
-                    Validation.not(intoFile.isAbsolute(), String.format("Into path '%s' must not be absolute.", into));
-                    File baseFile = new File(".");
-                    Path basePath = baseFile.toPath().toAbsolutePath().normalize();
-                    Path intoPath = new File(
-                                    baseFile, intoFile.toPath().normalize().toString())
-                            .toPath()
-                            .toAbsolutePath()
-                            .normalize();
-                    Validation.is(
-                            intoPath.startsWith(basePath),
-                            String.format("Into path '%s' must be relative to '%s'.", into, basePath));
-                    intoFile = intoPath.toFile();
-                }
-                return new Sugar(groupId, artifactId, version, enabled, intoFile);
+                return new Sugar(groupId, artifactId, version, enabled);
             } finally {
                 if (close) {
                     jarFile.close();
@@ -104,5 +86,4 @@ public final class Sugar {
     private final String version;
 
     private final boolean enabled;
-    private final File into;
 }
