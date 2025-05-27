@@ -56,13 +56,7 @@ repositories {
 dependencies {
     compileOnly(java(project, "tools"))
 
-    internal(libs.slf4j.simple)
     internal(libs.asm)
-    internal(libs.jackson.dataformat.yaml)
-    internal(libs.jackson.module.parameter.names)
-    internal(libs.jackson.datatype.jsr310)
-    internal(libs.jackson.datatype.jdk8)
-    internal(libs.maven.resolver.supplier)
 
     compileOnly(libs.lombok)
     annotationProcessor(libs.lombok)

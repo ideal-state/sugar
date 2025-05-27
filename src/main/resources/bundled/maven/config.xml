@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<resolver>
+    <local>
+        <name>local</name>
+    </local>
+
+    <remote>
+        <repository>
+            <name>aliyun-public</name>
+            <url>https://maven.aliyun.com/repository/public/</url>
+        </repository>
+
+        <repository>
+            <name>maven-central</name>
+            <url>https://repo1.maven.org/maven2/</url>
+        </repository>
+
+        <repository>
+            <name>sonatype-snapshots</name>
+            <url>https://central.sonatype.com/repository/maven-snapshots/</url>
+            <policies>ALWAYS_UPDATE</policies>
+        </repository>
+    </remote>
+</resolver>

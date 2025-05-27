@@ -2,9 +2,6 @@
 jreleaser = "1.18.0"
 lombok = "1.18.38"
 asm = "9.8"
-maven-resolver = "1.9.22"
-slf4j-simple = "2.0.17"
-jackson = "2.19.0"
 
 [plugins]
 jreleaser = { id = "org.jreleaser", version.ref = "jreleaser" }
@@ -12,9 +9,3 @@ jreleaser = { id = "org.jreleaser", version.ref = "jreleaser" }
 [libraries]
 lombok = { group = "org.projectlombok", name = "lombok", version.ref = "lombok" }
 asm = { group = "org.ow2.asm", name = "asm", version.ref = "asm" }
-maven-resolver-supplier = { group = "org.apache.maven.resolver", name = "maven-resolver-supplier", version.ref = "maven-resolver" }
-slf4j-simple = { group = "org.slf4j", name = "slf4j-simple", version.ref = "slf4j-simple" }
-jackson-dataformat-yaml = { group = "com.fasterxml.jackson.dataformat", name = "jackson-dataformat-yaml", version.ref = "jackson" }
-jackson-module-parameter-names = { group = "com.fasterxml.jackson.module", name = "jackson-module-parameter-names", version.ref = "jackson" }
-jackson-datatype-jsr310 = { group = "com.fasterxml.jackson.datatype", name = "jackson-datatype-jsr310", version.ref = "jackson" }
-jackson-datatype-jdk8 = { group = "com.fasterxml.jackson.datatype", name = "jackson-datatype-jdk8", version.ref = "jackson" }

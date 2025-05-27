@@ -14,33 +14,16 @@
  *    limitations under the License.
  */
 
-package team.idealstate.sugar.maven;
+package team.idealstate.sugar.maven.resolve.api;
 
-import java.util.Map;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.NonNull;
+import java.util.List;
+import team.idealstate.sugar.validate.annotation.NotNull;
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-public class MavenConfiguration {
+public interface MavenResolverConfiguration {
 
-    @NonNull
-    private Boolean log;
+    @NotNull
+    LocalRepository getLocalRepository();
 
-    @NonNull
-    private Boolean local;
-
-    @NonNull
-    private Map<String, Repository> repositories;
-
-    @Data
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class Repository {
-        @NonNull
-        private String url;
-    }
+    @NotNull
+    List<RemoteRepository> getRemoteRepositories();
 }
