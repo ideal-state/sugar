@@ -56,7 +56,7 @@ final class SimpleMavenResolverConfiguration extends DepthDescriptionHandler imp
     public LocalRepository getLocalRepository() {
         return new SimpleLocalRepository(
                 localRepositoryName == null ? "local" : localRepositoryName,
-                localRepositoryUrl == null ? new File(".") : new File(URI.create(localRepositoryUrl)),
+                localRepositoryUrl == null ? new File("./maven/repository/") : new File(URI.create(localRepositoryUrl)),
                 parseRepositoryPolicies(localRepositoryPolicies));
     }
 
