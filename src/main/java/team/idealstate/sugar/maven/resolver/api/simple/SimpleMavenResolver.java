@@ -17,8 +17,10 @@
 package team.idealstate.sugar.maven.resolver.api.simple;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
@@ -47,6 +49,7 @@ import team.idealstate.sugar.maven.resolver.api.RepositoryPolicy;
 import team.idealstate.sugar.maven.resolver.api.ResolvedArtifact;
 import team.idealstate.sugar.maven.resolver.api.ResolvedDependency;
 import team.idealstate.sugar.maven.resolver.api.exception.MavenResolutionException;
+import team.idealstate.sugar.string.StringUtils;
 import team.idealstate.sugar.validate.Validation;
 import team.idealstate.sugar.validate.annotation.NotNull;
 import team.idealstate.sugar.validate.annotation.Nullable;
@@ -78,26 +81,23 @@ final class SimpleMavenResolver implements MavenResolver {
         return new ArrayList<>(remoteRepositories);
     }
 
-    @NotNull
-    private InputStream openInputStream(
-            @NotNull Repository repository, @NotNull Dependency dependency, @NotNull URI location) throws Throwable {
-        if (repository instanceof LocalRepository) {
-            return Files.newInputStream(new File(location).toPath());
-        } else if (repository instanceof RemoteRepository) {
-            return location.toURL().openStream();
-        }
-        throw new UnsupportedOperationException();
-    }
-
     private boolean isExists(@NotNull Repository repository, @NotNull Dependency dependency, @NotNull URI location)
             throws Throwable {
         if (repository instanceof LocalRepository) {
             return new File(location).exists();
         } else if (repository instanceof RemoteRepository) {
-            try (InputStream opened = openInputStream(repository, dependency, location)) {
-                return true;
-            } catch (Throwable e) {
-                return false;
+            String scheme = location.getScheme();
+            if ("file".equals(scheme)) {
+                return new File(location).exists();
+            }
+            if ("http".equals(scheme) || "https".equals(scheme)) {
+                HttpURLConnection connection =
+                        (HttpURLConnection) location.toURL().openConnection();
+                try {
+                    return connection.getResponseCode() == HttpURLConnection.HTTP_OK;
+                } finally {
+                    connection.disconnect();
+                }
             }
         }
         throw new UnsupportedOperationException();
@@ -252,28 +252,116 @@ final class SimpleMavenResolver implements MavenResolver {
             @NotNull String inputSubfilePath,
             @NotNull String outputSubfilePath)
             throws Throwable {
+
         String parentPath = makeParentPath(dependency);
         URI location = makeLocation(repository.getUrl(), parentPath + inputSubfilePath);
+
         if (!isExists(repository, dependency, location)) {
             return null;
         }
-        File destinationFile = new File(destinationDirectory, parentPath + outputSubfilePath);
+
+        File destinationFile = new File(destinationDirectory, parentPath + outputSubfilePath).getAbsoluteFile();
+        if ("file".equals(location.getScheme())) {
+            if (new File(location)
+                    .toPath()
+                    .toAbsolutePath()
+                    .normalize()
+                    .toString()
+                    .equals(destinationFile
+                            .toPath()
+                            .toAbsolutePath()
+                            .normalize()
+                            .toString())) {
+                return destinationFile;
+            }
+        }
         File parentFile = destinationFile.getParentFile();
         if (!parentFile.exists()) {
             parentFile.mkdirs();
         }
+
         byte[] buffer = new byte[DEFAULT_BUFFER_SIZE];
         Log.info(String.format("Downloading '%s'...", location));
-        try (InputStream input = openInputStream(repository, dependency, location)) {
-            try (OutputStream output = Files.newOutputStream(destinationFile.toPath())) {
-                int read;
-                while ((read = input.read(buffer, 0, DEFAULT_BUFFER_SIZE)) >= 0) {
-                    output.write(buffer, 0, read);
-                    output.flush();
+
+        final int MAX_RETRIES = 5;
+        boolean success = false;
+        for (int i = 0; i < MAX_RETRIES; i++) {
+            long expectedLength = -1;
+            long totalRead = 0;
+
+            HttpURLConnection connection = null;
+            InputStream inputStream = null;
+            try {
+                if (repository instanceof LocalRepository) {
+                    inputStream = Files.newInputStream(new File(location).toPath());
+                } else if (repository instanceof RemoteRepository) {
+                    String scheme = location.getScheme();
+                    if ("file".equals(scheme)) {
+                        inputStream = Files.newInputStream(new File(location).toPath());
+                    } else if ("http".equals(scheme) || "https".equals(scheme)) {
+                        connection = (HttpURLConnection) location.toURL().openConnection();
+                        connection.setRequestMethod("GET");
+                        int responseCode = connection.getResponseCode();
+                        if (responseCode != HttpURLConnection.HTTP_OK) {
+                            if (i < MAX_RETRIES - 1) {
+                                continue;
+                            } else {
+                                throw new MavenResolutionException(
+                                        String.format("Failed to download '%s'. HTTP %d", location, responseCode));
+                            }
+                        }
+                        inputStream = connection.getInputStream();
+                    }
                 }
-                return destinationFile;
+                if (inputStream == null) {
+                    throw new UnsupportedOperationException();
+                }
+                try (InputStream input = inputStream) {
+                    if (connection != null) {
+                        String contentLength = connection.getHeaderField("Content-Length");
+                        if (contentLength != null && StringUtils.isInteger(contentLength)) {
+                            expectedLength = Long.parseLong(contentLength);
+                        }
+                    }
+                    try (OutputStream output = Files.newOutputStream(destinationFile.toPath())) {
+                        int read;
+                        while ((read = input.read(buffer, 0, DEFAULT_BUFFER_SIZE)) >= 0) {
+                            output.write(buffer, 0, read);
+                            totalRead += read;
+                        }
+                        output.flush();
+                    }
+                    if (expectedLength > 0 && totalRead != expectedLength) {
+                        throw new IOException("Download incomplete: expected " + expectedLength + " bytes, got "
+                                + totalRead + " bytes.");
+                    }
+                    if (destinationFile.length() < 100) {
+                        throw new IOException("Downloaded file too small to be valid.");
+                    }
+                    success = true;
+                } catch (IOException e) {
+                    if (i == MAX_RETRIES - 1) {
+                        throw new MavenResolutionException("Failed to download '" + location + "'.", e);
+                    }
+                    Log.warn(String.format(
+                            "Download failed (attempt %d/%d): %s. Retrying...", i + 1, MAX_RETRIES, e.getMessage()));
+                    destinationFile.delete();
+                }
+            } finally {
+                if (connection != null) {
+                    connection.disconnect();
+                }
+            }
+            if (success) {
+                break;
             }
         }
+        if (!success) {
+            destinationFile.delete();
+            throw new MavenResolutionException("Failed to download '" + location + "'.");
+        }
+
+        return destinationFile;
     }
 
     @NotNull
