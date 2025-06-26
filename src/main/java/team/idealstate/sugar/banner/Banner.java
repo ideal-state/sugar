@@ -23,6 +23,7 @@ import java.io.InputStreamReader;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.security.CodeSource;
 import java.util.Collections;
 import java.util.List;
@@ -67,7 +68,7 @@ public abstract class Banner {
             if (entry == null || entry.isDirectory()) {
                 return Collections.emptyList();
             }
-            try (BufferedReader reader = new BufferedReader(new InputStreamReader(jar.getInputStream(entry)))) {
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(jar.getInputStream(entry), StandardCharsets.UTF_8))) {
                 return reader.lines().collect(Collectors.toList());
             }
         } catch (IOException e) {
