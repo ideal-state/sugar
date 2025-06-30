@@ -68,7 +68,8 @@ public abstract class Banner {
             if (entry == null || entry.isDirectory()) {
                 return Collections.emptyList();
             }
-            try (BufferedReader reader = new BufferedReader(new InputStreamReader(jar.getInputStream(entry), StandardCharsets.UTF_8))) {
+            try (BufferedReader reader =
+                    new BufferedReader(new InputStreamReader(jar.getInputStream(entry), StandardCharsets.UTF_8))) {
                 return reader.lines().collect(Collectors.toList());
             }
         } catch (IOException e) {
