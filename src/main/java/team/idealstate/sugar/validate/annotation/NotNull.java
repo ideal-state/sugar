@@ -32,7 +32,6 @@ import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.RoundEnvironment;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.TypeElement;
-import lombok.NonNull;
 import team.idealstate.sugar.logging.Log;
 
 @Target({ElementType.FIELD, ElementType.METHOD, ElementType.PARAMETER})
@@ -48,6 +47,12 @@ public @interface NotNull {
 
         @SuppressWarnings({"unchecked", "rawtypes"})
         private static void hookLombok() {
+            Class<?> nonNullClass;
+            try {
+                nonNullClass = Class.forName("lombok.NonNull");
+            } catch (ClassNotFoundException e) {
+                return;
+            }
             try {
                 Class<?> unsafeClass = Class.forName("sun.misc.Unsafe");
                 Field theUnsafe = unsafeClass.getDeclaredField("theUnsafe");
@@ -58,7 +63,7 @@ public @interface NotNull {
                 Method getAndSetObject =
                         unsafeClass.getDeclaredMethod("getAndSetObject", Object.class, long.class, Object.class);
                 Class<?> handlerUtil =
-                        Class.forName("lombok.core.handlers.HandlerUtil", true, NonNull.class.getClassLoader());
+                        Class.forName("lombok.core.handlers.HandlerUtil", true, nonNullClass.getClassLoader());
                 Field field = handlerUtil.getDeclaredField("NONNULL_ANNOTATIONS");
                 field.setAccessible(true);
                 Object base = staticFieldBase.invoke(unsafe, field);
