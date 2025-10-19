@@ -24,6 +24,12 @@
 
 ------------------------------------------------------------------------------
 
+    java-annotations
+    (https://github.com/JetBrains/java-annotations)
+    Apache License Version 2.0
+
+------------------------------------------------------------------------------
+
     asm
     (https://gitlab.ow2.org/asm/asm)
     3-Clause BSD

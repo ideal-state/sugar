@@ -80,6 +80,7 @@ glass {
 dependencies {
     api(libs.log4j.api)
 
+    shadow(libs.jetbrains.annotations)
     shadow(libs.asm)
 }
 
