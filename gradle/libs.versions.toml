@@ -1,11 +1,9 @@
 [versions]
 jreleaser = "1.18.0"
-lombok = "1.18.38"
 asm = "9.8"
 
 [plugins]
 jreleaser = { id = "org.jreleaser", version.ref = "jreleaser" }
 
 [libraries]
-lombok = { group = "org.projectlombok", name = "lombok", version.ref = "lombok" }
 asm = { group = "org.ow2.asm", name = "asm", version.ref = "asm" }

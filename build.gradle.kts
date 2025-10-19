@@ -1,78 +1,60 @@
 import org.jreleaser.model.Active
+import team.idealstate.glass.plugin.project.java.extension.JavaExtension
+import java.util.Locale
 
 plugins {
-    glass(JAVA)
-    glass(PUBLISHING)
-    glass(SIGNING)
-    spotless(GRADLE)
-    spotless(JAVA)
+    glass
     alias(libs.plugins.jreleaser)
 }
 
 group = "team.idealstate.sugar"
-version = "0.1.1-SNAPSHOT"
-
-java {
-    toolchain {
-        languageVersion.set(JavaLanguageVersion.of(21))
-        vendor.set(JvmVendorSpec.AZUL)
-    }
-}
+version = "0.2.0-SNAPSHOT"
 
 glass {
-    release.set(8)
+    apply<JavaExtension> {
+        val moduleId = group.toString()
+        module(moduleId)
 
-    application {
-        agent {
-            val mainClass = "team.idealstate.sugar.agent.Javaagent"
-            premain.set(mainClass)
-            agentmain.set(mainClass)
-            canRedefineClasses.set(true)
-            canRetransformClasses.set(true)
-            canSetNativeMethodPrefix.set(true)
+        release(8) {
+            multi(9) {
+                toolchain(11)
+            }
+            multi(11)
+            multi(17)
+            multi(21)
         }
-    }
 
-    withCopyright()
-    withMavenPom()
+        artifacts {
+            manifest {
+                val mainClass = "$moduleId.agent.Javaagent"
+                premain.set(mainClass)
+                agentmain.set(mainClass)
+                canRedefineClasses.set(true)
+                canRetransformClasses.set(true)
+                canSetNativeMethodPrefix.set(true)
+            }
 
-    withSourcesJar()
-    withJavadocJar()
+            shadowJar {
+                val source = "org.objectweb.asm"
+                internal(source)
+            }
 
-    withInternal()
-    withShadow()
+            sourcesJar()
+            javadocJar()
+        }
 
-    withJUnitTest()
-}
+        integration {
+            lombok()
+            junit {
+                mockito()
+            }
+        }
 
-repositories {
-    mavenLocal()
-    aliyun()
-    sonatype()
-    sonatype(SNAPSHOT)
-    mavenCentral()
-}
-
-dependencies {
-    compileOnly(java(project, "tools"))
-
-    internal(libs.asm)
-
-    compileOnly(libs.lombok)
-    annotationProcessor(libs.lombok)
-    testCompileOnly(libs.lombok)
-    testAnnotationProcessor(libs.lombok)
-}
-
-publishing {
-    repositories {
-        project(project)
-    }
-    publications {
-        main {
+        publication {
             pom {
                 description.set("Coffee(Java) with sugar is sweeter.")
-                url.set("https://github.com/ideal-state/sugar")
+                val uri = "https://github.com/ideal-state/sugar"
+                url.set(uri)
                 licenses {
                     license {
                         name.set("Apache License 2.0")
@@ -80,9 +62,9 @@ publishing {
                     }
                 }
                 scm {
-                    url.set("https://github.com/ideal-state/sugar")
-                    connection.set("scm:git:https://github.com/ideal-state/sugar.git")
-                    developerConnection.set("scm:git:https://github.com/ideal-state/sugar.git")
+                    url.set(uri)
+                    connection.set("scm:git:$uri.git")
+                    developerConnection.set("scm:git:$uri.git")
                 }
                 developers {
                     developer {
@@ -96,11 +78,21 @@ publishing {
     }
 }
 
+dependencies {
+    shadow(libs.asm)
+}
+
+publishing {
+    repositories {
+        local(project)
+    }
+}
+
 jreleaser {
     deploy {
         maven {
             mavenCentral {
-                create("release") {
+                register("release") {
                     active.set(Active.RELEASE)
                     url.set("https://central.sonatype.com/api/v1/publisher")
                     sign.set(false)
@@ -108,7 +100,7 @@ jreleaser {
                 }
             }
             nexus2 {
-                create("snapshot") {
+                register("snapshot") {
                     active.set(Active.SNAPSHOT)
                     url.set("https://central.sonatype.com/repository/maven-snapshots")
                     snapshotUrl.set("https://central.sonatype.com/repository/maven-snapshots")
@@ -127,7 +119,7 @@ jreleaser {
 
 tasks.register("doDeploy") {
     dependsOn(tasks.named("test"))
-    dependsOn(tasks.named("publishAllPublicationsToProjectRepository"))
+    dependsOn(tasks.named("publishAllPublicationsTo${project.name.replaceFirstChar { it.titlecase(Locale.ENGLISH) }}Repository"))
     finalizedBy(tasks.named("jreleaserDeploy"))
 }
 

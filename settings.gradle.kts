@@ -4,7 +4,7 @@ pluginManagement {
     repositories {
         mavenLocal()
         maven {
-            name = "Sonatype-Snapshots"
+            name = "sonatype-snapshots"
             url = uri("https://central.sonatype.com/repository/maven-snapshots/")
         }
         gradlePluginPortal()
@@ -12,5 +12,5 @@ pluginManagement {
 }
 
 plugins {
-    id("team.idealstate.glass") version "0.1.0-SNAPSHOT"
+    id("team.idealstate.glass") version "0.2.0-SNAPSHOT"
 }
