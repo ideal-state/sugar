@@ -17,6 +17,13 @@
 
 ------------------------------------------------------------------------------
 
+    logging-log4j2:
+        log4j-api
+    (https://github.com/apache/logging-log4j2)
+    Apache License Version 2.0
+
+------------------------------------------------------------------------------
+
     asm
     (https://gitlab.ow2.org/asm/asm)
     3-Clause BSD

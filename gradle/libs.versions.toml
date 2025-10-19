@@ -1,9 +1,11 @@
 [versions]
 jreleaser = "1.18.0"
 asm = "9.8"
+log4j-api = "2.25.2"
 
 [plugins]
 jreleaser = { id = "org.jreleaser", version.ref = "jreleaser" }
 
 [libraries]
 asm = { group = "org.ow2.asm", name = "asm", version.ref = "asm" }
+log4j-api = { group = "org.apache.logging.log4j", name = "log4j-api", version.ref = "log4j-api" }

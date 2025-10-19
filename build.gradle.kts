@@ -79,6 +79,8 @@ glass {
 }
 
 dependencies {
+    api(libs.log4j.api)
+
     shadow(libs.asm)
 }
 
