@@ -26,7 +26,8 @@ glass {
 
         artifacts {
             manifest {
-                val mainClass = "$moduleId.agent.Javaagent"
+                val mainClass = "$moduleId.Sugar"
+                main.set(mainClass)
                 premain.set(mainClass)
                 agentmain.set(mainClass)
                 canRedefineClasses.set(true)
