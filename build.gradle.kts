@@ -44,7 +44,6 @@ glass {
         }
 
         integration {
-            lombok()
             junit {
                 mockito()
             }
