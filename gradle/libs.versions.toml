@@ -1,6 +1,6 @@
 [versions]
 jreleaser = "1.18.0"
-asm = "9.8"
+asm = "9.9"
 log4j-api = "2.25.2"
 
 [plugins]
