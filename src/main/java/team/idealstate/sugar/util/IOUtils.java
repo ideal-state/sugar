@@ -250,7 +250,7 @@ public abstract class IOUtils {
     /**
      *
      *
-     * <h4>将输入流的内容传输到输出流</h4>
+     * <h4>将输入流的内容传输到输出流（自动关闭）</h4>
      *
      * @param inputStream 待读取的输入流
      * @param outputStream 待写入的输出流
@@ -281,7 +281,7 @@ public abstract class IOUtils {
     /**
      *
      *
-     * <h4>从输入流读取内容到字节数组</h4>
+     * <h4>从输入流读取内容到字节数组（自动关闭）</h4>
      *
      * @param inputStream 待读取的输入流
      * @return 包含输入流内容的字节数组
@@ -297,7 +297,7 @@ public abstract class IOUtils {
     /**
      *
      *
-     * <h4>从字符读取器读取行到行列表</h4>
+     * <h4>从字符读取器读取行到行列表（自动关闭）</h4>
      *
      * @param reader 待读取的字符读取器
      * @return 读取的行列表
@@ -314,7 +314,7 @@ public abstract class IOUtils {
     /**
      *
      *
-     * <h4>从字符读取器读取行到行列表</h4>
+     * <h4>从字符读取器读取行到行列表（自动关闭）</h4>
      *
      * @param reader 待读取的字符读取器
      * @param limit 获取的行数限制
