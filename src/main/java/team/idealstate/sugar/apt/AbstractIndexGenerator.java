@@ -14,7 +14,7 @@
  *    limitations under the License.
  */
 
-package team.idealstate.sugar.service;
+package team.idealstate.sugar.apt;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;

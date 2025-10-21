@@ -14,7 +14,7 @@
  *    limitations under the License.
  */
 
-package team.idealstate.sugar.service;
+package team.idealstate.sugar.apt;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -26,7 +26,7 @@ import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.MirroredTypesException;
 import org.jetbrains.annotations.NotNull;
-import team.idealstate.sugar.service.annotation.Provides;
+import team.idealstate.sugar.apt.annotation.Provides;
 
 /**
  *

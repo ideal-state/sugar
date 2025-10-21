@@ -14,7 +14,7 @@
  *    limitations under the License.
  */
 
-package team.idealstate.sugar.service;
+package team.idealstate.sugar.apt;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -25,7 +25,7 @@ import javax.annotation.processing.AbstractProcessor;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.TypeElement;
 import org.jetbrains.annotations.NotNull;
-import team.idealstate.sugar.service.annotation.Index;
+import team.idealstate.sugar.apt.annotation.Index;
 
 /**
  *

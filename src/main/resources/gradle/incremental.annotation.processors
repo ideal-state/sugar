@@ -1,2 +1,2 @@
-team.idealstate.sugar.service.GeneralIndexGenerator,AGGREGATING
-team.idealstate.sugar.service.ProvidesIndexGenerator,AGGREGATING
+team.idealstate.sugar.apt.GeneralIndexGenerator,AGGREGATING
+team.idealstate.sugar.apt.ProvidesIndexGenerator,AGGREGATING

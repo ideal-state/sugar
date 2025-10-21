@@ -14,7 +14,7 @@
  *    limitations under the License.
  */
 
-package team.idealstate.sugar.service.annotation;
+package team.idealstate.sugar.apt.annotation;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
