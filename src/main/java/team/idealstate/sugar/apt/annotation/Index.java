@@ -21,6 +21,7 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import team.idealstate.sugar.apt.GeneralIndexGenerator;
 
 /**
  *
@@ -28,6 +29,8 @@ import java.lang.annotation.Target;
  * <h3>索引注解</h3>
  *
  * <p>用于标记需要生成索引的类。
+ *
+ * @see GeneralIndexGenerator
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.CLASS)
