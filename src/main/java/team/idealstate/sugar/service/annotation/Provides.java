@@ -35,7 +35,7 @@ import team.idealstate.sugar.service.ProvidesIndexGenerator;
  * @see ServiceLoader
  */
 @Target({ElementType.TYPE})
-@Retention(RetentionPolicy.RUNTIME)
+@Retention(RetentionPolicy.CLASS)
 @Documented
 public @interface Provides {
 
