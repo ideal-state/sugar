@@ -37,13 +37,13 @@ public interface WeakConsumer<T> {
      *
      * <h4>执行消费</h4>
      *
-     * <p>和 {@link Consumer#accept(T)} 不同的是，此方法的内部逻辑实现可以无需关注异常项的捕获。
+     * <p>和 {@link Consumer#accept(Object)} 不同的是，此方法的内部逻辑实现可以无需关注异常项的捕获。
      *
      * <p>如果消费过程中遇到未处理的异常，此方法会直接将其抛出。
      *
      * @param it 待消费的对象
      * @throws Throwable 消费过程中遇到的未处理异常
-     * @see Consumer#accept(T)
+     * @see Consumer#accept(Object)
      */
     void consume(T it) throws Throwable;
 

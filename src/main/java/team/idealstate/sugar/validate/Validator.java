@@ -52,7 +52,7 @@ public interface Validator<T> {
      * @param data 待验证的数据
      * @param feedback 数据合法性不符合预期时提供的异常反馈信息
      * @throws ValidationException 数据合法性不符合预期时抛出的异常
-     * @see #validate(T)
+     * @see #validate(Object)
      */
     default void validateOrElseThrow(T data, @NotNull String feedback) throws ValidationException {
         if (!validate(data)) {
@@ -71,7 +71,7 @@ public interface Validator<T> {
      * @param feedback 数据合法性不符合预期时提供的异常反馈信息
      * @return 原数据
      * @throws ValidationException 数据合法性不符合预期时抛出的异常
-     * @see #validateOrElseThrow(T, String)
+     * @see #validateOrElseThrow(Object, String)
      */
     default T validateAndGet(T data, @NotNull String feedback) throws ValidationException {
         validateOrElseThrow(data, feedback);

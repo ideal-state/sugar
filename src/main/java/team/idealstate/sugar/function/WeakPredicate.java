@@ -37,14 +37,14 @@ public interface WeakPredicate<T> {
      *
      * <h4>判断对象是否符合 </h4>
      *
-     * <p>和 {@link Predicate#test(T)} 不同的是，此方法的内部逻辑实现可以无需关注异常项的捕获。
+     * <p>和 {@link Predicate#test(Object)} 不同的是，此方法的内部逻辑实现可以无需关注异常项的捕获。
      *
      * <p>如果判断过程中遇到未处理的异常，此方法会直接将其抛出。
      *
      * @param it 待判断的对象
      * @return 对象是否符合
      * @throws Throwable 判断过程中遇到的未处理异常
-     * @see Predicate#test(T)
+     * @see Predicate#test(Object)
      */
     boolean test(T it) throws Throwable;
 

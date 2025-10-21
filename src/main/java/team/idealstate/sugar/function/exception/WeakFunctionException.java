@@ -18,6 +18,10 @@ package team.idealstate.sugar.function.exception;
 
 import org.jetbrains.annotations.NotNull;
 import team.idealstate.sugar.SugarException;
+import team.idealstate.sugar.function.WeakConsumer;
+import team.idealstate.sugar.function.WeakFunction;
+import team.idealstate.sugar.function.WeakPredicate;
+import team.idealstate.sugar.function.WeakSupplier;
 import team.idealstate.sugar.validate.Validation;
 
 /**
@@ -27,7 +31,10 @@ import team.idealstate.sugar.validate.Validation;
  *
  * <p>用于包装弱异常处理函数在调用过程中遇到的未处理的非运行时异常。
  *
- * @see team.idealstate.sugar.function
+ * @see WeakConsumer
+ * @see WeakFunction
+ * @see WeakPredicate
+ * @see WeakSupplier
  */
 public class WeakFunctionException extends SugarException {
     private static final long serialVersionUID = 7961922056407034332L;

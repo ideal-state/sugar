@@ -38,14 +38,14 @@ public interface WeakFunction<T, R> {
      *
      * <h4>调用函数</h4>
      *
-     * <p>和 {@link Function#apply(T)} 不同的是，此方法的内部逻辑实现可以无需关注异常项的捕获。
+     * <p>和 {@link Function#apply(Object)} 不同的是，此方法的内部逻辑实现可以无需关注异常项的捕获。
      *
      * <p>如果调用过程中遇到未处理的异常，此方法会直接将其抛出。
      *
      * @param it 函数入参对象
      * @return 函数返回值
      * @throws Throwable 调用过程中遇到的未处理异常
-     * @see Function#apply(T)
+     * @see Function#apply(Object)
      */
     R call(T it) throws Throwable;
 
@@ -54,7 +54,7 @@ public interface WeakFunction<T, R> {
      *
      * <h4>在当前函数入参前拼接另一个函数</h4>
      *
-     * <p>复合函数在进行调用时，先进行函数 {@code before} 的调用，其结果为 {@link T}，后继续将 {@link T} 作为入参进行函数 {@code this} 的调用。
+     * <p>复合函数在进行调用时，先进行函数 {@code before} 的调用，其结果为 {@code T}，后继续将 {@code T} 作为入参进行函数 {@code this} 的调用。
      *
      * @param before 待拼接的函数
      * @param <V> 待拼接的函数的入参对象类型
@@ -72,7 +72,7 @@ public interface WeakFunction<T, R> {
      *
      * <h4>在当前函数后拼接另一个函数</h4>
      *
-     * <p>复合函数在进行调用时，先进行函数 {@code this} 的调用，其结果为 {@link R}，后继续将 {@link R} 作为入参进行函数 {@code after} 的调用。
+     * <p>复合函数在进行调用时，先进行函数 {@code this} 的调用，其结果为 {@code R}，后继续将 {@code R} 作为入参进行函数 {@code after} 的调用。
      *
      * @param after 待拼接的函数
      * @param <V> 待拼接的函数的入参对象类型
