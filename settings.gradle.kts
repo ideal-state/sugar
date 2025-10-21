@@ -2,12 +2,12 @@ rootProject.name = "sugar"
 
 pluginManagement {
     repositories {
-        mavenLocal()
+        gradlePluginPortal()
         maven {
             name = "sonatype-snapshots"
             url = uri("https://central.sonatype.com/repository/maven-snapshots/")
         }
-        gradlePluginPortal()
+        mavenLocal()
     }
 }
 
