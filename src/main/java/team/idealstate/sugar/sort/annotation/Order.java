@@ -40,8 +40,7 @@ import team.idealstate.sugar.sort.Orderable;
 public @interface Order {
 
     int FIRST = Integer.MIN_VALUE;
-    int DEFAULT = 0;
     int LAST = Integer.MAX_VALUE;
 
-    int value() default DEFAULT;
+    int value();
 }

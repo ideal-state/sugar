@@ -98,6 +98,6 @@ public class OrderComparator<T> implements Comparator<T>, Serializable {
             return defaultOrder;
         }
         Order order = orderable.getClass().getDeclaredAnnotation(Order.class);
-        return order == null ? Order.DEFAULT : order.value();
+        return order == null ? defaultOrder : order.value();
     }
 }

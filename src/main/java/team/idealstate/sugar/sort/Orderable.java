@@ -36,9 +36,6 @@ public interface Orderable {
      * <h4>获取序号</h4>
      *
      * @return 序号
-     * @see Order#DEFAULT
      */
-    default int order() {
-        return Order.DEFAULT;
-    }
+    int order();
 }
