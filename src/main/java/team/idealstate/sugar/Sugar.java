@@ -18,13 +18,17 @@ package team.idealstate.sugar;
 
 import java.lang.instrument.Instrumentation;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import team.idealstate.sugar.agent.Javaagent;
 
 public interface Sugar {
 
     static void main(@NotNull String @NotNull ... arguments) {}
 
-    static void premain(@Nullable String arguments, @NotNull Instrumentation instrumentation) {}
+    static void premain(String arguments, @NotNull Instrumentation instrumentation) {
+        Javaagent.premain(arguments, instrumentation);
+    }
 
-    static void agentmain(@Nullable String arguments, @NotNull Instrumentation instrumentation) {}
+    static void agentmain(String arguments, @NotNull Instrumentation instrumentation) {
+        Javaagent.agentmain(arguments, instrumentation);
+    }
 }
