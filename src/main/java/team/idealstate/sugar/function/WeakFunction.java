@@ -18,7 +18,7 @@ package team.idealstate.sugar.function;
 
 import java.util.function.Function;
 import org.jetbrains.annotations.NotNull;
-import team.idealstate.sugar.function.exception.WeakFunctionException;
+import team.idealstate.sugar.exception.WeakException;
 import team.idealstate.sugar.validate.Validation;
 
 /**
@@ -104,7 +104,7 @@ public interface WeakFunction<T, R> {
      *
      * <h4>将此函数转换为原生函数</h4>
      *
-     * <p>对于调用过程中未处理的非运行时异常，其将会被包装为 {@link WeakFunctionException} 并抛出，否则直接抛出。
+     * <p>对于供应过程中未处理的异常，其将会被 {@link WeakException} 尝试抑制，然后抛出。
      *
      * @return 携带此函数本身和未处理异常的处理逻辑的原生函数
      */
@@ -113,10 +113,8 @@ public interface WeakFunction<T, R> {
         return (T it) -> {
             try {
                 return call(it);
-            } catch (RuntimeException e) {
-                throw e;
             } catch (Throwable e) {
-                throw new WeakFunctionException(e);
+                throw WeakException.suppress(e);
             }
         };
     }

@@ -23,7 +23,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import org.jetbrains.annotations.NotNull;
-import team.idealstate.sugar.exception.InputOutputException;
+import team.idealstate.sugar.exception.WeakException;
 import team.idealstate.sugar.validate.Validation;
 
 /**
@@ -69,7 +69,7 @@ public abstract class ObjectUtils {
      * @param object 待复制的对象
      * @param <T> 复制的对象的类型
      * @return 复制的对象
-     * @throws InputOutputException 拷贝过程中遇到的 {@link IOException} 的运行时包装
+     * @throws WeakException 拷贝过程中遇到的 {@link IOException} 的运行时包装
      * @see Serializable
      * @see ObjectOutputStream
      * @see ObjectInputStream
@@ -84,7 +84,7 @@ public abstract class ObjectUtils {
             return IOUtils.use(
                     new ObjectInputStream(new ByteArrayInputStream(out.toByteArray())), it -> (T) it.readObject());
         } catch (IOException e) {
-            throw new InputOutputException(e);
+            throw WeakException.suppress(e);
         }
     }
 }

@@ -34,7 +34,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import org.jetbrains.annotations.NotNull;
-import team.idealstate.sugar.exception.InputOutputException;
+import team.idealstate.sugar.exception.WeakException;
 import team.idealstate.sugar.function.WeakConsumer;
 import team.idealstate.sugar.function.WeakFunction;
 import team.idealstate.sugar.validate.Validation;
@@ -77,16 +77,16 @@ public abstract class IOUtils {
      * @param closeable 待消费的资源
      * @param consumer 表示消费过程的消费者
      * @param <T> 资源的类型
-     * @throws InputOutputException 消费过程中抛出的 {@link IOException} 的运行时包装
+     * @throws WeakException 消费过程中抛出的 {@link IOException} 的运行时包装
      */
     public static <T extends Closeable> void consume(@NotNull T closeable, @NotNull WeakConsumer<T> consumer)
-            throws InputOutputException {
+            throws WeakException {
         Validation.requireNotNull(closeable, "closeable must not be null.");
         Validation.requireNotNull(consumer, "consumer must not be null.");
         try (T it = closeable) {
             consumer.convert().accept(it);
         } catch (IOException e) {
-            throw new InputOutputException(e);
+            throw WeakException.suppress(e);
         }
     }
 
@@ -100,16 +100,16 @@ public abstract class IOUtils {
      * @param <T> 资源类型
      * @param <R> 使用过程中产生的结果的类型
      * @return 使用过程结束后产生的结果
-     * @throws InputOutputException 使用过程中抛出的 {@link IOException} 的运行时包装
+     * @throws WeakException 使用过程中抛出的 {@link IOException} 的运行时包装
      */
     public static <T extends Closeable, R> R use(@NotNull T closeable, @NotNull WeakFunction<T, R> function)
-            throws InputOutputException {
+            throws WeakException {
         Validation.requireNotNull(closeable, "closeable must not be null.");
         Validation.requireNotNull(function, "function must not be null.");
         try (T it = closeable) {
             return function.convert().apply(it);
         } catch (IOException e) {
-            throw new InputOutputException(e);
+            throw WeakException.suppress(e);
         }
     }
 
@@ -255,11 +255,11 @@ public abstract class IOUtils {
      * @param inputStream 待读取的输入流
      * @param outputStream 待写入的输出流
      * @return 已写入的字节数
-     * @throws InputOutputException 传输过程中抛出的 {@link IOException} 的运行时包装
+     * @throws WeakException 传输过程中抛出的 {@link IOException} 的运行时包装
      */
     @NotNull
     public static BigInteger transfer(@NotNull InputStream inputStream, @NotNull OutputStream outputStream)
-            throws InputOutputException {
+            throws WeakException {
         Validation.requireNotNull(inputStream, "inputStream must not be null.");
         Validation.requireNotNull(outputStream, "outputStream must not be null.");
         return use(
@@ -285,9 +285,9 @@ public abstract class IOUtils {
      *
      * @param inputStream 待读取的输入流
      * @return 包含输入流内容的字节数组
-     * @throws InputOutputException 读取输入流时抛出的 {@link IOException} 的运行时包装
+     * @throws WeakException 读取输入流时抛出的 {@link IOException} 的运行时包装
      */
-    public static byte @NotNull [] readBytes(@NotNull InputStream inputStream) throws InputOutputException {
+    public static byte @NotNull [] readBytes(@NotNull InputStream inputStream) throws WeakException {
         Validation.requireNotNull(inputStream, "inputStream must not be null.");
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream(DEFAULT_BUFFER_SIZE);
         transfer(inputStream, outputStream);
@@ -301,12 +301,12 @@ public abstract class IOUtils {
      *
      * @param reader 待读取的字符读取器
      * @return 读取的行列表
-     * @throws InputOutputException 读取字符读取器时抛出的 {@link IOException} 的运行时包装
+     * @throws WeakException 读取字符读取器时抛出的 {@link IOException} 的运行时包装
      * @see #DEFAULT_READ_LINES_LIMIT
      * @see #readLines(Reader, int)
      */
     @NotNull
-    public static List<@NotNull String> readLines(@NotNull Reader reader) throws InputOutputException {
+    public static List<@NotNull String> readLines(@NotNull Reader reader) throws WeakException {
         Validation.requireNotNull(reader, "reader must not be null.");
         return readLines(reader, DEFAULT_READ_LINES_LIMIT);
     }
@@ -319,11 +319,11 @@ public abstract class IOUtils {
      * @param reader 待读取的字符读取器
      * @param limit 获取的行数限制
      * @return 读取的行列表
-     * @throws InputOutputException 读取字符读取器时抛出的 {@link IOException} 的运行时包装
+     * @throws WeakException 读取字符读取器时抛出的 {@link IOException} 的运行时包装
      * @see BufferedReader#readLine()
      */
     @NotNull
-    public static List<@NotNull String> readLines(@NotNull Reader reader, int limit) throws InputOutputException {
+    public static List<@NotNull String> readLines(@NotNull Reader reader, int limit) throws WeakException {
         Validation.requireNotNull(reader, "reader must not be null.");
         WeakFunction<BufferedReader, List<String>> reading = it -> {
             List<String> lines;

@@ -18,7 +18,7 @@ package team.idealstate.sugar.function;
 
 import java.util.function.Consumer;
 import org.jetbrains.annotations.NotNull;
-import team.idealstate.sugar.function.exception.WeakFunctionException;
+import team.idealstate.sugar.exception.WeakException;
 import team.idealstate.sugar.validate.Validation;
 
 /**
@@ -106,7 +106,7 @@ public interface WeakConsumer<T> {
      *
      * <h4>将此消费者转换为原生消费者</h4>
      *
-     * <p>对于消费过程中未处理的非运行时异常，其将会被包装为 {@link WeakFunctionException} 并抛出，否则直接抛出。
+     * <p>对于供应过程中未处理的异常，其将会被 {@link WeakException} 尝试抑制，然后抛出。
      *
      * @return 携带此消费者本身和未处理异常的处理逻辑的原生消费者
      */
@@ -115,10 +115,8 @@ public interface WeakConsumer<T> {
         return (T it) -> {
             try {
                 consume(it);
-            } catch (RuntimeException e) {
-                throw e;
             } catch (Throwable e) {
-                throw new WeakFunctionException(e);
+                throw WeakException.suppress(e);
             }
         };
     }

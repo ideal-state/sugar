@@ -18,7 +18,7 @@ package team.idealstate.sugar.function;
 
 import java.util.function.Predicate;
 import org.jetbrains.annotations.NotNull;
-import team.idealstate.sugar.function.exception.WeakFunctionException;
+import team.idealstate.sugar.exception.WeakException;
 import team.idealstate.sugar.validate.Validation;
 
 /**
@@ -107,7 +107,7 @@ public interface WeakPredicate<T> {
      *
      * <h4>将此逻辑表达式转换为原生逻辑表达式</h4>
      *
-     * <p>对于判断过程中未处理的非运行时异常，其将会被包装为 {@link WeakFunctionException} 并抛出，否则直接抛出。
+     * <p>对于供应过程中未处理的异常，其将会被 {@link WeakException} 尝试抑制，然后抛出。
      *
      * @return 携带此逻辑表达式本身和未处理异常的处理逻辑的原生逻辑表达式
      */
@@ -116,10 +116,8 @@ public interface WeakPredicate<T> {
         return (T it) -> {
             try {
                 return test(it);
-            } catch (RuntimeException e) {
-                throw e;
             } catch (Throwable e) {
-                throw new WeakFunctionException(e);
+                throw WeakException.suppress(e);
             }
         };
     }

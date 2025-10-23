@@ -29,7 +29,7 @@ import java.io.Writer;
 import java.nio.charset.Charset;
 import java.util.List;
 import org.jetbrains.annotations.NotNull;
-import team.idealstate.sugar.exception.InputOutputException;
+import team.idealstate.sugar.exception.WeakException;
 import team.idealstate.sugar.validate.Validation;
 
 /**
@@ -48,16 +48,16 @@ public abstract class FileUtils {
      *
      * @param file 目标文件
      * @return 输入流
-     * @throws InputOutputException 创建文件输入流时抛出的 {@link FileNotFoundException} 的运行时包装
+     * @throws WeakException 创建文件输入流时抛出的 {@link FileNotFoundException} 的运行时包装
      * @see FileInputStream
      */
     @NotNull
-    public static InputStream inputStream(@NotNull File file) throws InputOutputException {
+    public static InputStream inputStream(@NotNull File file) throws WeakException {
         Validation.requireNotNull(file, "file must not be null.");
         try {
             return new FileInputStream(file);
         } catch (FileNotFoundException e) {
-            throw new InputOutputException(e);
+            throw WeakException.suppress(e);
         }
     }
 
@@ -68,16 +68,16 @@ public abstract class FileUtils {
      *
      * @param file 目标文件
      * @return 输出流
-     * @throws InputOutputException 创建文件输出流时抛出的 {@link FileNotFoundException} 的运行时包装
+     * @throws WeakException 创建文件输出流时抛出的 {@link FileNotFoundException} 的运行时包装
      * @see FileOutputStream
      */
     @NotNull
-    public static OutputStream outputStream(@NotNull File file) throws InputOutputException {
+    public static OutputStream outputStream(@NotNull File file) throws WeakException {
         Validation.requireNotNull(file, "file must not be null.");
         try {
             return new FileOutputStream(file);
         } catch (FileNotFoundException e) {
-            throw new InputOutputException(e);
+            throw WeakException.suppress(e);
         }
     }
 
@@ -105,12 +105,12 @@ public abstract class FileUtils {
      * @param file 目标文件
      * @param charset 字符集
      * @return 字符读取器
-     * @throws InputOutputException 创建文件输入流时抛出的 {@link FileNotFoundException} 的运行时包装
+     * @throws WeakException 创建文件输入流时抛出的 {@link FileNotFoundException} 的运行时包装
      * @see #inputStream(File)
      * @see IOUtils#reader(InputStream, Charset)
      */
     @NotNull
-    public static Reader reader(@NotNull File file, @NotNull Charset charset) throws InputOutputException {
+    public static Reader reader(@NotNull File file, @NotNull Charset charset) throws WeakException {
         Validation.requireNotNull(file, "file must not be null.");
         Validation.requireNotNull(charset, "charset must not be null.");
         return IOUtils.reader(inputStream(file), charset);
@@ -140,12 +140,12 @@ public abstract class FileUtils {
      * @param file 目标文件
      * @param charset 字符集
      * @return 字符写入器
-     * @throws InputOutputException 创建文件输出流时抛出的 {@link FileNotFoundException} 的运行时包装
+     * @throws WeakException 创建文件输出流时抛出的 {@link FileNotFoundException} 的运行时包装
      * @see #outputStream(File)
      * @see IOUtils#writer(OutputStream, Charset)
      */
     @NotNull
-    public static Writer writer(@NotNull File file, @NotNull Charset charset) throws InputOutputException {
+    public static Writer writer(@NotNull File file, @NotNull Charset charset) throws WeakException {
         Validation.requireNotNull(file, "file must not be null.");
         Validation.requireNotNull(charset, "charset must not be null.");
         return IOUtils.writer(outputStream(file), charset);
@@ -176,13 +176,12 @@ public abstract class FileUtils {
      * @param file 目标文件
      * @param charset 字符集
      * @return 缓冲区字符读取器
-     * @throws InputOutputException 创建文件输入流时抛出的 {@link FileNotFoundException} 的运行时包装
+     * @throws WeakException 创建文件输入流时抛出的 {@link FileNotFoundException} 的运行时包装
      * @see #inputStream(File)
      * @see IOUtils#bufferedReader(InputStream, Charset)
      */
     @NotNull
-    public static BufferedReader bufferedReader(@NotNull File file, @NotNull Charset charset)
-            throws InputOutputException {
+    public static BufferedReader bufferedReader(@NotNull File file, @NotNull Charset charset) throws WeakException {
         Validation.requireNotNull(file, "file must not be null.");
         Validation.requireNotNull(charset, "charset must not be null.");
         return IOUtils.bufferedReader(inputStream(file), charset);
@@ -213,12 +212,12 @@ public abstract class FileUtils {
      * @param file 目标文件
      * @param charset 字符集
      * @return 缓冲区字符写入器
-     * @throws InputOutputException 创建文件输出流时抛出的 {@link FileNotFoundException} 的运行时包装
+     * @throws WeakException 创建文件输出流时抛出的 {@link FileNotFoundException} 的运行时包装
      * @see #outputStream(File)
      * @see IOUtils#bufferedWriter(OutputStream, Charset)
      */
     @NotNull
-    public static Writer bufferedWriter(@NotNull File file, @NotNull Charset charset) throws InputOutputException {
+    public static Writer bufferedWriter(@NotNull File file, @NotNull Charset charset) throws WeakException {
         Validation.requireNotNull(file, "file must not be null.");
         Validation.requireNotNull(charset, "charset must not be null.");
         return IOUtils.bufferedWriter(outputStream(file), charset);
@@ -231,11 +230,11 @@ public abstract class FileUtils {
      *
      * @param file 目标文件
      * @return 包含文件内容的字节数组
-     * @throws InputOutputException 读取文件内容时抛出的 {@link IOException} 的运行时包装
+     * @throws WeakException 读取文件内容时抛出的 {@link IOException} 的运行时包装
      * @see #inputStream(File)
      * @see IOUtils#readBytes(InputStream)
      */
-    public static byte @NotNull [] readBytes(@NotNull File file) throws InputOutputException {
+    public static byte @NotNull [] readBytes(@NotNull File file) throws WeakException {
         Validation.requireNotNull(file, "file must not be null.");
         return IOUtils.readBytes(inputStream(file));
     }
@@ -247,10 +246,10 @@ public abstract class FileUtils {
      *
      * @param file 目标文件
      * @return 读取到的行列表
-     * @throws InputOutputException 读取文件内容时抛出的 {@link IOException} 的运行时包装
+     * @throws WeakException 读取文件内容时抛出的 {@link IOException} 的运行时包装
      */
     @NotNull
-    public static List<@NotNull String> readLines(@NotNull File file) throws InputOutputException {
+    public static List<@NotNull String> readLines(@NotNull File file) throws WeakException {
         Validation.requireNotNull(file, "file must not be null.");
         return IOUtils.readLines(reader(file));
     }
