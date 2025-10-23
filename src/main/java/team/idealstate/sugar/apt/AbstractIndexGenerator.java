@@ -47,7 +47,7 @@ import javax.tools.FileObject;
 import javax.tools.StandardLocation;
 import org.jetbrains.annotations.NotNull;
 import team.idealstate.sugar.util.IOUtils;
-import team.idealstate.sugar.util.ThrowableUtils;
+import team.idealstate.sugar.util.StackTraceUtils;
 import team.idealstate.sugar.validate.Validation;
 
 /**
@@ -121,7 +121,7 @@ public abstract class AbstractIndexGenerator<A extends Annotation> extends Abstr
                         }
                     });
                 } catch (IOException e) {
-                    messager.printMessage(Diagnostic.Kind.ERROR, ThrowableUtils.makeDetail(e));
+                    messager.printMessage(Diagnostic.Kind.ERROR, StackTraceUtils.makeDetail(e));
                 }
             }
         } else {
@@ -135,7 +135,7 @@ public abstract class AbstractIndexGenerator<A extends Annotation> extends Abstr
                 try {
                     destinationPaths = resolveDestinationPaths(typeElement, annotation);
                 } catch (Throwable e) {
-                    messager.printMessage(Diagnostic.Kind.ERROR, ThrowableUtils.makeDetail(e), typeElement);
+                    messager.printMessage(Diagnostic.Kind.ERROR, StackTraceUtils.makeDetail(e), typeElement);
                     continue;
                 }
                 if (destinationPaths.isEmpty()) {

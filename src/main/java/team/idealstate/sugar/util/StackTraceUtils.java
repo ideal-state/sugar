@@ -23,11 +23,11 @@ import org.jetbrains.annotations.NotNull;
 /**
  *
  *
- * <h3>异常项工具类</h3>
+ * <h3>堆栈追踪工具</h3>
  *
- * <p>提供常用异常项工具方法封装。
+ * <p>提供常用堆栈追踪操作工具方法封装。
  */
-public abstract class ThrowableUtils {
+public abstract class StackTraceUtils {
 
     /**
      *
