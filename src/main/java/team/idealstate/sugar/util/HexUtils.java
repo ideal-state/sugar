@@ -23,7 +23,10 @@ import org.jetbrains.annotations.NotNull;
 import team.idealstate.sugar.validate.Validation;
 
 /**
+ *
+ *
  * <h3>十六进制工具</h3>
+ *
  * <p>提供常用的十六进制操作工具方法封装
  */
 public abstract class HexUtils {
