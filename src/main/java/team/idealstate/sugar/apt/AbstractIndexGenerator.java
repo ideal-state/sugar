@@ -131,7 +131,7 @@ public abstract class AbstractIndexGenerator<A extends Annotation> extends Abstr
                 }
                 TypeElement typeElement = (TypeElement) element;
                 A annotation = element.getAnnotation(annotationClass);
-                List<String> destinationPaths = null;
+                List<String> destinationPaths;
                 try {
                     destinationPaths = resolveDestinationPaths(typeElement, annotation);
                 } catch (Throwable e) {
