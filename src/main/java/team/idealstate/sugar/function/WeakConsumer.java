@@ -60,7 +60,7 @@ public interface WeakConsumer<T> {
      */
     @NotNull
     default WeakConsumer<T> compose(@NotNull WeakConsumer<? super T> before) {
-        Validation.isNotNull(before, "before must not be null.");
+        Validation.requireNotNull(before, "before must not be null.");
         return (T it) -> {
             before.consume(it);
             consume(it);
@@ -80,7 +80,7 @@ public interface WeakConsumer<T> {
      */
     @NotNull
     default WeakConsumer<T> andThen(@NotNull WeakConsumer<? super T> after) {
-        Validation.isNotNull(after, "after must not be null.");
+        Validation.requireNotNull(after, "after must not be null.");
         return (T it) -> {
             consume(it);
             after.consume(it);
@@ -97,7 +97,7 @@ public interface WeakConsumer<T> {
      */
     @NotNull
     default WeakConsumer<T> convert(@NotNull Consumer<? super T> consumer) {
-        Validation.isNotNull(consumer, "consumer must not be null.");
+        Validation.requireNotNull(consumer, "consumer must not be null.");
         return consumer::accept;
     }
 

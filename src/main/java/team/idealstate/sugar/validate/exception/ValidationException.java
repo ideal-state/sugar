@@ -24,7 +24,7 @@ import team.idealstate.sugar.SugarException;
  *
  * <h3>数据校验异常 </h3>
  *
- * <p>通常在对非法数据进行严格的校验时被抛出。
+ * <p>通常在数据校验过程中遇到非预期的问题时被抛出。
  */
 public class ValidationException extends SugarException {
 

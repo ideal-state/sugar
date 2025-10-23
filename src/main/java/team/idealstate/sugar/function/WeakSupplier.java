@@ -57,7 +57,7 @@ public interface WeakSupplier<T> {
      */
     @NotNull
     default WeakSupplier<T> convert(@NotNull Supplier<? extends T> supplier) {
-        Validation.isNotNull(supplier, "supplier must not be null.");
+        Validation.requireNotNull(supplier, "supplier must not be null.");
         return supplier::get;
     }
 

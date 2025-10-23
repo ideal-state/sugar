@@ -58,7 +58,7 @@ public interface WeakPredicate<T> {
      */
     @NotNull
     default WeakPredicate<T> and(@NotNull WeakPredicate<? super T> other) {
-        Validation.isNotNull(other, "other must not be null.");
+        Validation.requireNotNull(other, "other must not be null.");
         return (t) -> test(t) && other.test(t);
     }
 
@@ -84,7 +84,7 @@ public interface WeakPredicate<T> {
      */
     @NotNull
     default WeakPredicate<T> or(@NotNull WeakPredicate<? super T> other) {
-        Validation.isNotNull(other, "other must not be null.");
+        Validation.requireNotNull(other, "other must not be null.");
         return (t) -> test(t) || other.test(t);
     }
 
@@ -98,7 +98,7 @@ public interface WeakPredicate<T> {
      */
     @NotNull
     default WeakPredicate<T> convert(@NotNull Predicate<? super T> predicate) {
-        Validation.isNotNull(predicate, "predicate must not be null.");
+        Validation.requireNotNull(predicate, "predicate must not be null.");
         return predicate::test;
     }
 

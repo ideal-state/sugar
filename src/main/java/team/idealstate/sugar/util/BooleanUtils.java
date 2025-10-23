@@ -17,7 +17,6 @@
 package team.idealstate.sugar.util;
 
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import team.idealstate.sugar.validate.Validation;
 
 /**
@@ -37,7 +36,7 @@ public abstract class BooleanUtils {
      * @param expression 待判断的布尔表达式
      * @return {@code expression == null || expression}
      */
-    public static boolean isNullOrTrue(@Nullable Boolean expression) {
+    public static boolean isNullOrTrue(Boolean expression) {
         return expression == null || expression;
     }
 
@@ -50,7 +49,7 @@ public abstract class BooleanUtils {
      * @return 等价于 {@code (boolean) expression}
      */
     public static boolean isTrue(@NotNull Boolean expression) {
-        Validation.isNotNull(expression, "expression must not be null.");
+        Validation.requireNotNull(expression, "expression must not be null.");
         return expression;
     }
 
@@ -62,7 +61,7 @@ public abstract class BooleanUtils {
      * @param expression 待判断的布尔表达式
      * @return {@code expression == null || !expression}
      */
-    public static boolean isNullOrFalse(@Nullable Boolean expression) {
+    public static boolean isNullOrFalse(Boolean expression) {
         return expression == null || !expression;
     }
 
@@ -75,7 +74,7 @@ public abstract class BooleanUtils {
      * @return 等价于 {@code (boolean) !expression}
      */
     public static boolean isFalse(@NotNull Boolean expression) {
-        Validation.isNotNull(expression, "expression must not be null.");
+        Validation.requireNotNull(expression, "expression must not be null.");
         return !expression;
     }
 }

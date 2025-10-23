@@ -63,7 +63,7 @@ public interface WeakFunction<T, R> {
      */
     @NotNull
     default <V> WeakFunction<V, R> compose(@NotNull WeakFunction<? super V, ? extends T> before) {
-        Validation.isNotNull(before, "before must not be null.");
+        Validation.requireNotNull(before, "before must not be null.");
         return (v) -> call(before.call(v));
     }
 
@@ -81,7 +81,7 @@ public interface WeakFunction<T, R> {
      */
     @NotNull
     default <V> WeakFunction<T, V> andThen(@NotNull WeakFunction<? super R, ? extends V> after) {
-        Validation.isNotNull(after, "after must not be null.");
+        Validation.requireNotNull(after, "after must not be null.");
         return (t) -> after.call(call(t));
     }
 
@@ -95,7 +95,7 @@ public interface WeakFunction<T, R> {
      */
     @NotNull
     default WeakFunction<T, R> convert(@NotNull Function<? super T, ? extends R> function) {
-        Validation.isNotNull(function, "function must not be null.");
+        Validation.requireNotNull(function, "function must not be null.");
         return function::apply;
     }
 

@@ -81,8 +81,8 @@ public abstract class IOUtils {
      */
     public static <T extends Closeable> void consume(@NotNull T closeable, @NotNull WeakConsumer<T> consumer)
             throws InputOutputException {
-        Validation.isNotNull(closeable, "closeable must not be null.");
-        Validation.isNotNull(consumer, "consumer must not be null.");
+        Validation.requireNotNull(closeable, "closeable must not be null.");
+        Validation.requireNotNull(consumer, "consumer must not be null.");
         try (T it = closeable) {
             consumer.convert().accept(it);
         } catch (IOException e) {
@@ -104,8 +104,8 @@ public abstract class IOUtils {
      */
     public static <T extends Closeable, R> R use(@NotNull T closeable, @NotNull WeakFunction<T, R> function)
             throws InputOutputException {
-        Validation.isNotNull(closeable, "closeable must not be null.");
-        Validation.isNotNull(function, "function must not be null.");
+        Validation.requireNotNull(closeable, "closeable must not be null.");
+        Validation.requireNotNull(function, "function must not be null.");
         try (T it = closeable) {
             return function.convert().apply(it);
         } catch (IOException e) {
@@ -125,7 +125,7 @@ public abstract class IOUtils {
      */
     @NotNull
     public static Reader reader(@NotNull InputStream inputStream) {
-        Validation.isNotNull(inputStream, "inputStream must not be null.");
+        Validation.requireNotNull(inputStream, "inputStream must not be null.");
         return reader(inputStream, DEFAULT_CHARSET);
     }
 
@@ -141,8 +141,8 @@ public abstract class IOUtils {
      */
     @NotNull
     public static Reader reader(@NotNull InputStream inputStream, @NotNull Charset charset) {
-        Validation.isNotNull(inputStream, "inputStream must not be null.");
-        Validation.isNotNull(charset, "charset must not be null.");
+        Validation.requireNotNull(inputStream, "inputStream must not be null.");
+        Validation.requireNotNull(charset, "charset must not be null.");
         return new InputStreamReader(inputStream, charset);
     }
 
@@ -158,7 +158,7 @@ public abstract class IOUtils {
      */
     @NotNull
     public static Writer writer(@NotNull OutputStream outputStream) {
-        Validation.isNotNull(outputStream, "outputStream must not be null.");
+        Validation.requireNotNull(outputStream, "outputStream must not be null.");
         return writer(outputStream, DEFAULT_CHARSET);
     }
 
@@ -174,8 +174,8 @@ public abstract class IOUtils {
      */
     @NotNull
     public static Writer writer(@NotNull OutputStream outputStream, @NotNull Charset charset) {
-        Validation.isNotNull(outputStream, "outputStream must not be null.");
-        Validation.isNotNull(charset, "charset must not be null.");
+        Validation.requireNotNull(outputStream, "outputStream must not be null.");
+        Validation.requireNotNull(charset, "charset must not be null.");
         return new OutputStreamWriter(outputStream, charset);
     }
 
@@ -191,7 +191,7 @@ public abstract class IOUtils {
      */
     @NotNull
     public static BufferedReader bufferedReader(@NotNull InputStream inputStream) {
-        Validation.isNotNull(inputStream, "inputStream must not be null.");
+        Validation.requireNotNull(inputStream, "inputStream must not be null.");
         return bufferedReader(inputStream, DEFAULT_CHARSET);
     }
 
@@ -208,8 +208,8 @@ public abstract class IOUtils {
      */
     @NotNull
     public static BufferedReader bufferedReader(@NotNull InputStream inputStream, @NotNull Charset charset) {
-        Validation.isNotNull(inputStream, "inputStream must not be null.");
-        Validation.isNotNull(charset, "charset must not be null.");
+        Validation.requireNotNull(inputStream, "inputStream must not be null.");
+        Validation.requireNotNull(charset, "charset must not be null.");
         return new BufferedReader(new InputStreamReader(inputStream, charset), DEFAULT_BUFFER_SIZE);
     }
 
@@ -225,7 +225,7 @@ public abstract class IOUtils {
      */
     @NotNull
     public static BufferedWriter bufferedWriter(@NotNull OutputStream outputStream) {
-        Validation.isNotNull(outputStream, "outputStream must not be null.");
+        Validation.requireNotNull(outputStream, "outputStream must not be null.");
         return bufferedWriter(outputStream, DEFAULT_CHARSET);
     }
 
@@ -242,8 +242,8 @@ public abstract class IOUtils {
      */
     @NotNull
     public static BufferedWriter bufferedWriter(@NotNull OutputStream outputStream, @NotNull Charset charset) {
-        Validation.isNotNull(outputStream, "outputStream must not be null.");
-        Validation.isNotNull(charset, "charset must not be null.");
+        Validation.requireNotNull(outputStream, "outputStream must not be null.");
+        Validation.requireNotNull(charset, "charset must not be null.");
         return new BufferedWriter(new OutputStreamWriter(outputStream, charset), DEFAULT_BUFFER_SIZE);
     }
 
@@ -260,8 +260,8 @@ public abstract class IOUtils {
     @NotNull
     public static BigInteger transfer(@NotNull InputStream inputStream, @NotNull OutputStream outputStream)
             throws InputOutputException {
-        Validation.isNotNull(inputStream, "inputStream must not be null.");
-        Validation.isNotNull(outputStream, "outputStream must not be null.");
+        Validation.requireNotNull(inputStream, "inputStream must not be null.");
+        Validation.requireNotNull(outputStream, "outputStream must not be null.");
         return use(
                         inputStream,
                         input -> use(outputStream, output -> {
@@ -288,7 +288,7 @@ public abstract class IOUtils {
      * @throws InputOutputException 读取输入流时抛出的 {@link IOException} 的运行时包装
      */
     public static byte @NotNull [] readBytes(@NotNull InputStream inputStream) throws InputOutputException {
-        Validation.isNotNull(inputStream, "inputStream must not be null.");
+        Validation.requireNotNull(inputStream, "inputStream must not be null.");
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream(DEFAULT_BUFFER_SIZE);
         transfer(inputStream, outputStream);
         return outputStream.toByteArray();
@@ -307,7 +307,7 @@ public abstract class IOUtils {
      */
     @NotNull
     public static List<@NotNull String> readLines(@NotNull Reader reader) throws InputOutputException {
-        Validation.isNotNull(reader, "reader must not be null.");
+        Validation.requireNotNull(reader, "reader must not be null.");
         return readLines(reader, DEFAULT_READ_LINES_LIMIT);
     }
 
@@ -324,7 +324,7 @@ public abstract class IOUtils {
      */
     @NotNull
     public static List<@NotNull String> readLines(@NotNull Reader reader, int limit) throws InputOutputException {
-        Validation.isNotNull(reader, "reader must not be null.");
+        Validation.requireNotNull(reader, "reader must not be null.");
         WeakFunction<BufferedReader, List<String>> reading = it -> {
             List<String> lines;
             boolean unlimited;

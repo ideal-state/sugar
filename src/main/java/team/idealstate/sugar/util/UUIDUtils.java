@@ -75,7 +75,7 @@ public abstract class UUIDUtils {
      */
     @NotNull
     public static UUID fromBytes(byte @NotNull [] bytes) {
-        Validation.isNotNull(bytes, "bytes must not be null.");
+        Validation.requireNotNull(bytes, "bytes must not be null.");
         return fromBytes(bytes, DEFAULT_SWAP_FLAG);
     }
 
@@ -90,8 +90,8 @@ public abstract class UUIDUtils {
      */
     @NotNull
     public static UUID fromBytes(byte @NotNull [] bytes, boolean swapFlag) {
-        Validation.isNotNull(bytes, "bytes must not be null.");
-        Validation.isTrue(bytes.length == BYTES_LEN, "bytes's length must be equal to " + BYTES_LEN + ".");
+        Validation.requireNotNull(bytes, "bytes must not be null.");
+        Validation.requireTrue(bytes.length == BYTES_LEN, "bytes's length must be equal to " + BYTES_LEN + ".");
         if (swapFlag) {
             byte[] copiedBytes = new byte[BYTES_LEN];
             for (int i = 0, j = 0; j < SWAP.length; j++) {
@@ -132,7 +132,7 @@ public abstract class UUIDUtils {
      * @see #toBytes(UUID, boolean)
      */
     public static byte @NotNull [] toBytes(@NotNull UUID uuid) {
-        Validation.isNotNull(uuid, "uuid must not be null.");
+        Validation.requireNotNull(uuid, "uuid must not be null.");
         return toBytes(uuid, DEFAULT_SWAP_FLAG);
     }
 
@@ -146,7 +146,7 @@ public abstract class UUIDUtils {
      * @return 以字节数组表示的 UUID
      */
     public static byte @NotNull [] toBytes(@NotNull UUID uuid, boolean swapFlag) {
-        Validation.isNotNull(uuid, "uuid must not be null.");
+        Validation.requireNotNull(uuid, "uuid must not be null.");
         long mostBit = uuid.getMostSignificantBits();
         byte[] bytes = new byte[16];
         bytes[0] = (byte) ((mostBit >> 56) & 0xFF);

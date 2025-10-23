@@ -23,7 +23,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import team.idealstate.sugar.exception.InputOutputException;
 import team.idealstate.sugar.validate.Validation;
 
@@ -44,7 +43,7 @@ public abstract class ObjectUtils {
      * @param object 待判断的对象
      * @return 对象是否为 {@code null}
      */
-    public static boolean isNull(@Nullable Object object) {
+    public static boolean isNull(Object object) {
         return object == null;
     }
 
@@ -56,7 +55,7 @@ public abstract class ObjectUtils {
      * @param object 待判断的对象
      * @return 对象是否为非 {@code null}
      */
-    public static boolean isNotNull(@Nullable Object object) {
+    public static boolean isNotNull(Object object) {
         return object != null;
     }
 
@@ -78,7 +77,7 @@ public abstract class ObjectUtils {
     @SuppressWarnings("unchecked")
     @NotNull
     public static <T extends Serializable> T copy(@NotNull T object) {
-        Validation.isNotNull(object, "object must not be null.");
+        Validation.requireNotNull(object, "object must not be null.");
         try {
             ByteArrayOutputStream out = new ByteArrayOutputStream(IOUtils.DEFAULT_BUFFER_SIZE);
             IOUtils.consume(new ObjectOutputStream(out), it -> it.writeObject(object));

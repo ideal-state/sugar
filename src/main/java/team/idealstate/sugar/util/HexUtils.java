@@ -54,7 +54,7 @@ public abstract class HexUtils {
      * @see #toHexString(byte[])
      */
     public static byte @NotNull [] toBytes(@NotNull String hexString) {
-        Validation.isNotNull(hexString, "hexString must not be null.");
+        Validation.requireNotNull(hexString, "hexString must not be null.");
         final int length = hexString.length() / 2;
         byte[] binary = new byte[length];
         for (int i = 0; i < length; i++) {
@@ -76,7 +76,7 @@ public abstract class HexUtils {
      */
     @NotNull
     public static String toHexString(byte @NotNull [] bytes) {
-        Validation.isNotNull(bytes, "bytes must not be null.");
+        Validation.requireNotNull(bytes, "bytes must not be null.");
         StringBuilder builder = new StringBuilder();
         for (byte b : bytes) {
             builder.append(HEX_DIGITS[(b & 0xf0) >> 4]).append(HEX_DIGITS[b & 0x0f]);

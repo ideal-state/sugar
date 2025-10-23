@@ -53,7 +53,7 @@ public abstract class FileUtils {
      */
     @NotNull
     public static InputStream inputStream(@NotNull File file) throws InputOutputException {
-        Validation.isNotNull(file, "file must not be null.");
+        Validation.requireNotNull(file, "file must not be null.");
         try {
             return new FileInputStream(file);
         } catch (FileNotFoundException e) {
@@ -73,7 +73,7 @@ public abstract class FileUtils {
      */
     @NotNull
     public static OutputStream outputStream(@NotNull File file) throws InputOutputException {
-        Validation.isNotNull(file, "file must not be null.");
+        Validation.requireNotNull(file, "file must not be null.");
         try {
             return new FileOutputStream(file);
         } catch (FileNotFoundException e) {
@@ -93,7 +93,7 @@ public abstract class FileUtils {
      */
     @NotNull
     public static Reader reader(@NotNull File file) {
-        Validation.isNotNull(file, "file must not be null.");
+        Validation.requireNotNull(file, "file must not be null.");
         return reader(file, IOUtils.DEFAULT_CHARSET);
     }
 
@@ -111,8 +111,8 @@ public abstract class FileUtils {
      */
     @NotNull
     public static Reader reader(@NotNull File file, @NotNull Charset charset) throws InputOutputException {
-        Validation.isNotNull(file, "file must not be null.");
-        Validation.isNotNull(charset, "charset must not be null.");
+        Validation.requireNotNull(file, "file must not be null.");
+        Validation.requireNotNull(charset, "charset must not be null.");
         return IOUtils.reader(inputStream(file), charset);
     }
 
@@ -128,7 +128,7 @@ public abstract class FileUtils {
      */
     @NotNull
     public static Writer writer(@NotNull File file) {
-        Validation.isNotNull(file, "file must not be null.");
+        Validation.requireNotNull(file, "file must not be null.");
         return writer(file, IOUtils.DEFAULT_CHARSET);
     }
 
@@ -146,8 +146,8 @@ public abstract class FileUtils {
      */
     @NotNull
     public static Writer writer(@NotNull File file, @NotNull Charset charset) throws InputOutputException {
-        Validation.isNotNull(file, "file must not be null.");
-        Validation.isNotNull(charset, "charset must not be null.");
+        Validation.requireNotNull(file, "file must not be null.");
+        Validation.requireNotNull(charset, "charset must not be null.");
         return IOUtils.writer(outputStream(file), charset);
     }
 
@@ -164,7 +164,7 @@ public abstract class FileUtils {
      */
     @NotNull
     public static BufferedReader bufferedReader(@NotNull File file) {
-        Validation.isNotNull(file, "file must not be null.");
+        Validation.requireNotNull(file, "file must not be null.");
         return bufferedReader(file, IOUtils.DEFAULT_CHARSET);
     }
 
@@ -183,8 +183,8 @@ public abstract class FileUtils {
     @NotNull
     public static BufferedReader bufferedReader(@NotNull File file, @NotNull Charset charset)
             throws InputOutputException {
-        Validation.isNotNull(file, "file must not be null.");
-        Validation.isNotNull(charset, "charset must not be null.");
+        Validation.requireNotNull(file, "file must not be null.");
+        Validation.requireNotNull(charset, "charset must not be null.");
         return IOUtils.bufferedReader(inputStream(file), charset);
     }
 
@@ -201,7 +201,7 @@ public abstract class FileUtils {
      */
     @NotNull
     public static Writer bufferedWriter(@NotNull File file) {
-        Validation.isNotNull(file, "file must not be null.");
+        Validation.requireNotNull(file, "file must not be null.");
         return bufferedWriter(file, IOUtils.DEFAULT_CHARSET);
     }
 
@@ -219,8 +219,8 @@ public abstract class FileUtils {
      */
     @NotNull
     public static Writer bufferedWriter(@NotNull File file, @NotNull Charset charset) throws InputOutputException {
-        Validation.isNotNull(file, "file must not be null.");
-        Validation.isNotNull(charset, "charset must not be null.");
+        Validation.requireNotNull(file, "file must not be null.");
+        Validation.requireNotNull(charset, "charset must not be null.");
         return IOUtils.bufferedWriter(outputStream(file), charset);
     }
 
@@ -236,7 +236,7 @@ public abstract class FileUtils {
      * @see IOUtils#readBytes(InputStream)
      */
     public static byte @NotNull [] readBytes(@NotNull File file) throws InputOutputException {
-        Validation.isNotNull(file, "file must not be null.");
+        Validation.requireNotNull(file, "file must not be null.");
         return IOUtils.readBytes(inputStream(file));
     }
 
@@ -251,7 +251,7 @@ public abstract class FileUtils {
      */
     @NotNull
     public static List<@NotNull String> readLines(@NotNull File file) throws InputOutputException {
-        Validation.isNotNull(file, "file must not be null.");
+        Validation.requireNotNull(file, "file must not be null.");
         return IOUtils.readLines(reader(file));
     }
 }
